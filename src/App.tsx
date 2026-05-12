@@ -12,6 +12,8 @@ import RecoverPassword from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import Trips from './pages/Trips'
+import NovaViagem from './pages/viagens/NovaViagem'
+import DetalheViagem from './pages/viagens/DetalheViagem'
 import Expenses from './pages/Expenses'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
@@ -48,6 +50,8 @@ const App = () => (
 
               <Route element={<RoleGuard allowed={['viajante', 'gestor', 'admin']} />}>
                 <Route path="/viagens" element={<Trips />} />
+                <Route path="/viagens/nova" element={<NovaViagem />} />
+                <Route path="/viagens/:id" element={<DetalheViagem />} />
                 <Route path="/despesas" element={<Expenses />} />
                 <Route
                   path="/prestacoes"

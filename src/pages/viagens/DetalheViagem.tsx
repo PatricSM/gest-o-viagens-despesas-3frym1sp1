@@ -1,0 +1,285 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  FileText,
+  ArrowLeft,
+  Download,
+  Ban,
+  Clock,
+  MapPin,
+  Receipt,
+  Wallet,
+  Copy,
+} from 'lucide-react'
+import {
+  getViagem,
+  getTrechos,
+  getEstimativas,
+  getAnexos,
+  updateViagem,
+  duplicateViagem,
+} from '@/services/viagens'
+import pb from '@/lib/pocketbase/client'
+import { formatCurrency, formatDate } from '@/lib/formatters'
+import { useAuth } from '@/hooks/use-auth'
+import { useToast } from '@/hooks/use-toast'
+
+export default function DetalheViagem() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { toast } = useToast()
+
+  const [data, setData] = useState<any>(null)
+  const [workflowSteps, setWorkflowSteps] = useState<any[]>([])
+
+  const load = async () => {
+    if (!id) return
+    const [v, trechos, estimativas, anexos] = await Promise.all([
+      getViagem(id),
+      getTrechos(id),
+      getEstimativas(id),
+      getAnexos(id),
+    ])
+    setData({ v, trechos, estimativas, anexos })
+
+    if (v.workflow_run_id) {
+      const steps = await pb.collection('workflow_run_steps').getFullList({
+        filter: `run_id="${v.workflow_run_id}"`,
+        sort: 'ordem',
+        expand: 'etapa_id,aprovador_id',
+      })
+      setWorkflowSteps(steps)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [id])
+
+  const handleDuplicate = async () => {
+    if (!user || !id) return
+    const nova = await duplicateViagem(id, user.id)
+    toast({ title: 'Sucesso', description: 'Viagem duplicada com sucesso.' })
+    navigate(`/viagens/nova?id=${nova.id}`)
+  }
+
+  const handleCancel = async () => {
+    if (!confirm('Deseja cancelar esta viagem?')) return
+    await updateViagem(id!, { status: 'cancelada' })
+    toast({ title: 'Sucesso', description: 'Cancelada com sucesso.' })
+    load()
+  }
+
+  if (!data)
+    return (
+      <div className="p-12 text-center text-muted-foreground animate-pulse">
+        Carregando detalhes...
+      </div>
+    )
+
+  const { v, trechos, estimativas } = data
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6 animate-fade-in pb-12">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/viagens')}>
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold">Solicitação {v.codigo || 'S/N'}</h2>
+            <Badge variant="outline" className="bg-primary/5">
+              {v.status.toUpperCase()}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Criada em {formatDate(v.created)} por {v.expand?.usuario_id?.name}
+          </p>
+        </div>
+        <div className="ml-auto flex gap-2">
+          {['rascunho', 'em_aprovacao'].includes(v.status) && (
+            <Button variant="outline" className="text-destructive" onClick={handleCancel}>
+              <Ban className="w-4 h-4 mr-2" /> Cancelar
+            </Button>
+          )}
+          <Button variant="outline" onClick={handleDuplicate}>
+            <Copy className="w-4 h-4 mr-2" /> Duplicar
+          </Button>
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" /> Gerar PDF
+          </Button>
+          {v.status === 'aprovada' && <Button>Iniciar Prestação</Button>}
+        </div>
+      </div>
+
+      <Tabs defaultValue="resumo" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 h-12 bg-muted/50 p-1 mb-6">
+          <TabsTrigger value="resumo" className="data-[state=active]:bg-background">
+            Resumo
+          </TabsTrigger>
+          <TabsTrigger value="aprovacao" className="data-[state=active]:bg-background">
+            Aprovação
+          </TabsTrigger>
+          <TabsTrigger value="despesas" className="data-[state=active]:bg-background">
+            Despesas
+          </TabsTrigger>
+          <TabsTrigger value="adiantamentos" className="data-[state=active]:bg-background">
+            Adiantamentos
+          </TabsTrigger>
+          <TabsTrigger value="prestacao" className="data-[state=active]:bg-background">
+            Prestação de Contas
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="resumo" className="space-y-6 mt-0">
+          <Card className="p-6 shadow-sm border-border/40">
+            <h3 className="text-lg font-semibold mb-4 border-b pb-2">Motivo e Classificação</h3>
+            <p className="text-body-md text-foreground">{v.motivo}</p>
+            <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-border/40">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase font-semibold">
+                  Centro de Custo
+                </p>
+                <p className="font-medium mt-1">{v.expand?.centro_custo_id?.nome}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase font-semibold">
+                  Departamento
+                </p>
+                <p className="font-medium mt-1">{v.expand?.departamento_id?.nome || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase font-semibold">
+                  Total Estimado
+                </p>
+                <p className="font-bold text-primary mt-1 text-lg">
+                  {formatCurrency(v.total_estimado || 0)}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="p-6 shadow-sm border-border/40">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-muted-foreground" /> Trechos
+              </h3>
+              <div className="space-y-4">
+                {trechos.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhum trecho.</p>
+                ) : (
+                  trechos.map((t: any) => (
+                    <div key={t.id} className="flex flex-col gap-1 p-3 bg-muted/30 rounded-lg">
+                      <div className="flex justify-between font-medium text-sm">
+                        <span>{t.origem}</span>
+                        <span>{t.destino}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(t.data_ida)} • {t.tipo_transporte}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+
+            <Card className="p-6 shadow-sm border-border/40">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-muted-foreground" /> Estimativas
+              </h3>
+              <div className="space-y-3">
+                {estimativas.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhuma estimativa.</p>
+                ) : (
+                  estimativas.map((e: any) => (
+                    <div
+                      key={e.id}
+                      className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="font-medium capitalize">{e.tipo}</p>
+                        <p className="text-xs text-muted-foreground">{e.descricao}</p>
+                      </div>
+                      <span className="font-semibold">{formatCurrency(e.valor)}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="aprovacao" className="mt-0">
+          <Card className="p-6 shadow-sm">
+            {workflowSteps.length === 0 ? (
+              <p className="text-muted-foreground py-8 text-center">
+                Nenhum fluxo de aprovação iniciado.
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {workflowSteps.map((step, index) => (
+                  <div key={step.id} className="flex gap-4 relative">
+                    {index < workflowSteps.length - 1 && (
+                      <div className="absolute left-4 top-10 bottom-[-24px] w-px bg-border"></div>
+                    )}
+                    <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center relative z-10 border border-background">
+                      {step.status === 'aprovado' ? (
+                        <Badge className="w-8 h-8 rounded-full p-0 flex items-center justify-center bg-green-500">
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                        </Badge>
+                      ) : step.status === 'rejeitado' ? (
+                        <Badge className="w-8 h-8 rounded-full p-0 flex items-center justify-center bg-red-500">
+                          <Ban className="w-4 h-4 text-white" />
+                        </Badge>
+                      ) : (
+                        <Clock className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="pb-6 pt-1">
+                      <p className="font-medium text-sm">Etapa {step.ordem}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Status:{' '}
+                        <span className="uppercase font-semibold text-foreground">
+                          {step.status}
+                        </span>
+                      </p>
+                      {step.decided_at && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDate(step.decided_at)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="despesas">
+          <Card className="p-12 text-center text-muted-foreground">
+            <Receipt className="w-8 h-8 mx-auto mb-3 opacity-50" />
+            Nenhuma despesa vinculada.
+          </Card>
+        </TabsContent>
+        <TabsContent value="adiantamentos">
+          <Card className="p-12 text-center text-muted-foreground">
+            <Wallet className="w-8 h-8 mx-auto mb-3 opacity-50" />
+            Nenhum adiantamento vinculado.
+          </Card>
+        </TabsContent>
+        <TabsContent value="prestacao">
+          <Card className="p-12 text-center text-muted-foreground">
+            <FileText className="w-8 h-8 mx-auto mb-3 opacity-50" />
+            Nenhuma prestação de contas criada.
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
