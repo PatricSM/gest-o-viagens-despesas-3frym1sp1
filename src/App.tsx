@@ -20,6 +20,11 @@ import DetalheDespesa from './pages/despesas/DetalheDespesa'
 import ListaAdiantamentos from './pages/adiantamentos/ListaAdiantamentos'
 import NovoAdiantamento from './pages/adiantamentos/NovoAdiantamento'
 import DetalheAdiantamento from './pages/adiantamentos/DetalheAdiantamento'
+
+import ListaPrestacoes from './pages/prestacoes/ListaPrestacoes'
+import NovaPrestacao from './pages/prestacoes/NovaPrestacao'
+import DetalhePrestacao from './pages/prestacoes/DetalhePrestacao'
+
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
@@ -60,10 +65,9 @@ const App = () => (
                 <Route path="/despesas" element={<ListaDespesas />} />
                 <Route path="/despesas/nova" element={<NovaDespesa />} />
                 <Route path="/despesas/:id" element={<DetalheDespesa />} />
-                <Route
-                  path="/prestacoes"
-                  element={<PlaceholderPage title="Prestações de Contas" />}
-                />
+                <Route path="/prestacoes" element={<ListaPrestacoes />} />
+                <Route path="/prestacoes/nova" element={<NovaPrestacao />} />
+                <Route path="/prestacoes/:id" element={<DetalhePrestacao />} />
                 <Route path="/adiantamentos" element={<ListaAdiantamentos />} />
                 <Route path="/adiantamentos/novo" element={<NovoAdiantamento />} />
                 <Route path="/adiantamentos/:id" element={<DetalheAdiantamento />} />

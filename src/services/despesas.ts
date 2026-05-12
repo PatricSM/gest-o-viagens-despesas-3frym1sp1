@@ -46,12 +46,10 @@ export const getMoedas = (empresaId: string) =>
     .collection('moedas')
     .getFullList({ filter: `empresa_id="${empresaId}" && active=true`, sort: 'codigo' })
 export const getViagens = (empresaId: string, usuarioId: string) =>
-  pb
-    .collection('viagens')
-    .getFullList({
-      filter: `empresa_id="${empresaId}" && usuario_id="${usuarioId}"`,
-      sort: '-created',
-    })
+  pb.collection('viagens').getFullList({
+    filter: `empresa_id="${empresaId}" && usuario_id="${usuarioId}"`,
+    sort: '-created',
+  })
 export const getCentrosCusto = (empresaId: string) =>
   pb
     .collection('centros_custo')
