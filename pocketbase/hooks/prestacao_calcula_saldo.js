@@ -34,7 +34,7 @@ onRecordCreate((e) => {
 
   const adiantamentos = $app.findRecordsByFilter(
     'adiantamentos',
-    `prestacao_id = '${record.id}'`,
+    `prestacao_id = '${record.id}' && status != 'cancelado' && status != 'rejeitado'`,
     '',
     0,
     0,
@@ -67,7 +67,7 @@ onRecordUpdate((e) => {
 
   const adiantamentos = $app.findRecordsByFilter(
     'adiantamentos',
-    `prestacao_id = '${record.id}'`,
+    `prestacao_id = '${record.id}' && status != 'cancelado' && status != 'rejeitado'`,
     '',
     0,
     0,

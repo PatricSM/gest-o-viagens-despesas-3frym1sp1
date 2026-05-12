@@ -1,10 +1,50 @@
 import pb from '@/lib/pocketbase/client'
 
-export const getPrestacoes = (empresaId: string) =>
-  pb.collection('prestacoes_contas').getFullList({
-    filter: `empresa_id="${empresaId}"`,
+export const getPrestacoes = (
+  empresaId: string,
+  filters?: {
+    status?: string[]
+    usuario_id?: string
+    viagem_id?: string
+    dataInicio?: string
+    dataFim?: string
+  },
+) => {
+  let filterStr = `empresa_id="${empresaId}"`
+
+  if (filters?.status && filters.status.length > 0) {
+    const statusFilters = filters.status.map((s) => `status="${s}"`).join(' || ')
+    filterStr += ` && (${statusFilters})`
+  }
+  if (filters?.usuario_id) {
+    filterStr += ` && usuario_id="${filters.usuario_id}"`
+  }
+  if (filters?.viagem_id) {
+    filterStr += ` && viagem_id="${filters.viagem_id}"`
+  }
+  if (filters?.dataInicio) {
+    filterStr += ` && data_envio>="${filters.dataInicio} 00:00:00"`
+  }
+  if (filters?.dataFim) {
+    filterStr += ` && data_envio<="${filters.dataFim} 23:59:59"`
+  }
+
+  return pb.collection('prestacoes_contas').getFullList({
+    filter: filterStr,
     sort: '-created',
     expand: 'usuario_id,viagem_id,moeda_id',
+  })
+}
+
+export const getUsuariosPorEmpresa = (empresaId: string) =>
+  pb.collection('users').getFullList({
+    filter: `empresa_id="${empresaId}"`,
+  })
+
+export const getViagensPorEmpresa = (empresaId: string) =>
+  pb.collection('viagens').getFullList({
+    filter: `empresa_id="${empresaId}"`,
+    sort: '-created',
   })
 
 export const getPrestacao = (id: string) =>
@@ -67,10 +107,24 @@ export const getDespesasDisponiveis = (empresaId: string, usuarioId: string) =>
     expand: 'categoria_id,moeda_id',
   })
 
-export const getAdiantamentosDisponiveis = (empresaId: string, usuarioId: string) =>
-  pb.collection('adiantamentos').getFullList({
-    filter: `empresa_id="${empresaId}" && usuario_id="${usuarioId}" && prestacao_id="" && status="aprovado"`,
+export const getAdiantamentosDisponiveis = (
+  empresaId: string,
+  usuarioId: string,
+  viagemId?: string,
+) => {
+  let filter = `empresa_id="${empresaId}" && usuario_id="${usuarioId}" && prestacao_id="" && status="pago"`
+  if (viagemId) {
+    filter += ` && viagem_id="${viagemId}"`
+  }
+  return pb.collection('adiantamentos').getFullList({
+    filter,
     expand: 'moeda_id',
+  })
+}
+
+export const getDespesaComprovantes = (despesaId: string) =>
+  pb.collection('despesa_comprovantes').getFullList({
+    filter: `despesa_id="${despesaId}"`,
   })
 
 export const vincularDespesa = async (despesaId: string, prestacaoId: string) => {

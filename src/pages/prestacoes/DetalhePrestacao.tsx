@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FileText, ArrowLeft, Upload, Link as LinkIcon, Trash2, Send } from 'lucide-react'
+import {
+  FileText,
+  ArrowLeft,
+  Send,
+  CheckCircle,
+  XCircle,
+  Printer,
+  Image as ImageIcon,
+  RotateCcw,
+  Landmark,
+  History,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -10,17 +21,12 @@ import {
   getDespesasPorPrestacao,
   getAdiantamentosPorPrestacao,
   getPrestacaoAnexos,
-  uploadPrestacaoAnexo,
-  deletePrestacaoAnexo,
-  getDespesasDisponiveis,
-  vincularDespesa,
-  desvincularDespesa,
-  getAdiantamentosDisponiveis,
-  vincularAdiantamento,
-  desvincularAdiantamento,
   updatePrestacao,
 } from '@/services/prestacoes'
+import { getWorkflowRunSteps, triggerWorkflow } from '@/services/workflows'
+import { getDespesaComprovantes } from '@/services/prestacoes'
 import pb from '@/lib/pocketbase/client'
+import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -34,14 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
 
 const statusMap: Record<string, { label: string; variant: any }> = {
   rascunho: { label: 'Rascunho', variant: 'secondary' },
@@ -57,21 +57,21 @@ const statusMap: Record<string, { label: string; variant: any }> = {
 export default function DetalhePrestacao() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, currentEmpresa } = useAuth()
+  const { user, currentEmpresa, userRole } = useAuth()
 
   const [prestacao, setPrestacao] = useState<any>(null)
   const [despesas, setDespesas] = useState<any[]>([])
   const [adiantamentos, setAdiantamentos] = useState<any[]>([])
   const [anexos, setAnexos] = useState<any[]>([])
+  const [despesasComprovantes, setDespesasComprovantes] = useState<Record<string, any[]>>({})
+  const [workflowSteps, setWorkflowSteps] = useState<any[]>([])
 
-  const [dispDespesas, setDispDespesas] = useState<any[]>([])
-  const [dispAdiantamentos, setDispAdiantamentos] = useState<any[]>([])
-
-  const [uploading, setUploading] = useState(false)
-  const [vincularOpen, setVincularOpen] = useState(false)
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null)
 
   const isOwner = user?.id === prestacao?.usuario_id
   const isDraft = prestacao?.status === 'rascunho'
+  const isManager = userRole === 'gestor'
+  const isFinance = userRole === 'financeiro' || userRole === 'admin'
 
   const loadData = async () => {
     if (!id || !currentEmpresa || !user) return
@@ -88,14 +88,16 @@ export default function DetalhePrestacao() {
       setAdiantamentos(a)
       setAnexos(ax)
 
-      if (user.id === p.usuario_id && p.status === 'rascunho') {
-        const [dd, da] = await Promise.all([
-          getDespesasDisponiveis(currentEmpresa.id, user.id),
-          getAdiantamentosDisponiveis(currentEmpresa.id, user.id),
-        ])
-        setDispDespesas(dd)
-        setDispAdiantamentos(da)
+      if (p.workflow_run_id) {
+        getWorkflowRunSteps(p.workflow_run_id).then(setWorkflowSteps)
       }
+
+      const comprovantesMap: Record<string, any[]> = {}
+      for (const despesa of d) {
+        const comps = await getDespesaComprovantes(despesa.id)
+        comprovantesMap[despesa.id] = comps
+      }
+      setDespesasComprovantes(comprovantesMap)
     } catch (err) {
       toast.error('Erro ao carregar dados.')
     }
@@ -105,85 +107,44 @@ export default function DetalhePrestacao() {
     loadData()
   }, [id, currentEmpresa, user])
 
-  const handleVincularDespesa = async (despId: string) => {
-    if (!id) return
+  const handleAction = async (action: string) => {
+    if (!id || !currentEmpresa) return
     try {
-      await vincularDespesa(despId, id)
-      toast.success('Despesa vinculada!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao vincular.')
-    }
-  }
+      let nextStatus = prestacao.status
+      if (action === 'enviar') {
+        nextStatus = 'enviada'
+        await triggerWorkflow(currentEmpresa.id, 'prestacao', 'prestacoes_contas', id, user.id)
+      } else if (action === 'aprovar_gestor') {
+        nextStatus = 'em_aprovacao_financeiro'
+      } else if (action === 'aprovar_financeiro') {
+        nextStatus = 'aprovada'
+      } else if (action === 'rejeitar') {
+        nextStatus = 'rejeitada'
+      } else if (action === 'devolver') {
+        nextStatus = 'devolvida'
+      } else if (action === 'pagar') {
+        nextStatus = 'paga'
+      }
 
-  const handleDesvincularDespesa = async (despId: string) => {
-    try {
-      await desvincularDespesa(despId)
-      toast.success('Despesa desvinculada!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao desvincular.')
-    }
-  }
-
-  const handleVincularAdiantamento = async (adiantId: string) => {
-    if (!id) return
-    try {
-      await vincularAdiantamento(adiantId, id)
-      toast.success('Adiantamento vinculado!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao vincular.')
-    }
-  }
-
-  const handleDesvincularAdiantamento = async (adiantId: string) => {
-    try {
-      await desvincularAdiantamento(adiantId)
-      toast.success('Adiantamento desvinculado!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao desvincular.')
-    }
-  }
-
-  const handleUploadAnexo = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !id || !user) return
-    setUploading(true)
-    try {
-      await uploadPrestacaoAnexo(id, file, file.name, user.id)
-      toast.success('Anexo enviado!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao enviar anexo.')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const handleRemoveAnexo = async (anexoId: string) => {
-    try {
-      await deletePrestacaoAnexo(anexoId)
-      toast.success('Anexo removido!')
-      loadData()
-    } catch (err) {
-      toast.error('Erro ao remover.')
-    }
-  }
-
-  const handleEnviar = async () => {
-    if (!id) return
-    try {
       await updatePrestacao(id, {
-        status: 'em_aprovacao_gestor',
-        data_envio: new Date().toISOString(),
+        status: nextStatus,
+        [action === 'enviar'
+          ? 'data_envio'
+          : action === 'aprovar_financeiro'
+            ? 'data_aprovacao_financeiro'
+            : action === 'pagar'
+              ? 'data_pagamento'
+              : 'updated']: new Date().toISOString(),
       })
-      toast.success('Enviada para aprovação!')
+      toast.success('Ação realizada com sucesso!')
       loadData()
     } catch (err) {
-      toast.error('Erro ao enviar.')
+      toast.error('Erro ao processar ação.')
     }
+  }
+
+  const printDocument = () => {
+    window.print()
   }
 
   if (!prestacao) return null
@@ -191,212 +152,268 @@ export default function DetalhePrestacao() {
   const currency = prestacao.expand?.moeda_id?.codigo || 'BRL'
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10 animate-fade-in">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate('/prestacoes')}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">{prestacao.titulo}</h2>
-          <div className="text-sm text-muted-foreground flex gap-2 items-center mt-1">
-            <span>{prestacao.codigo || '-'}</span>
-            <span>•</span>
-            <Badge variant={statusMap[prestacao.status]?.variant || 'secondary'}>
-              {statusMap[prestacao.status]?.label || prestacao.status}
-            </Badge>
+    <div className="space-y-6 max-w-6xl mx-auto pb-10 animate-fade-in print:max-w-none print:m-0 print:p-0 print:space-y-4">
+      <div className="flex items-center justify-between print:hidden">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/prestacoes')}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">{prestacao.titulo}</h2>
+            <div className="text-sm text-muted-foreground flex gap-2 items-center mt-1">
+              <span>{prestacao.codigo || '-'}</span>
+              <span>•</span>
+              <Badge variant={statusMap[prestacao.status]?.variant || 'secondary'}>
+                {statusMap[prestacao.status]?.label || prestacao.status}
+              </Badge>
+              <span>•</span>
+              <span>
+                {prestacao.expand?.usuario_id?.name || prestacao.expand?.usuario_id?.email}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="ml-auto flex gap-2">
-          {isOwner && isDraft && (
-            <Button onClick={handleEnviar} className="bg-primary">
+
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={printDocument}>
+            <Printer className="w-4 h-4 mr-2" /> Exportar PDF
+          </Button>
+
+          {isOwner && (isDraft || prestacao.status === 'devolvida') && (
+            <Button onClick={() => handleAction('enviar')} className="bg-primary">
               <Send className="w-4 h-4 mr-2" /> Enviar para Aprovação
+            </Button>
+          )}
+
+          {(prestacao.status === 'enviada' || prestacao.status === 'em_aprovacao_gestor') &&
+            isManager && (
+              <>
+                <Button
+                  variant="outline"
+                  className="text-destructive border-destructive hover:bg-destructive/10"
+                  onClick={() => handleAction('rejeitar')}
+                >
+                  <XCircle className="w-4 h-4 mr-2" /> Rejeitar
+                </Button>
+                <Button variant="outline" onClick={() => handleAction('devolver')}>
+                  <RotateCcw className="w-4 h-4 mr-2" /> Devolver
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => handleAction('aprovar_gestor')}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" /> Aprovar
+                </Button>
+              </>
+            )}
+
+          {prestacao.status === 'em_aprovacao_financeiro' && isFinance && (
+            <>
+              <Button
+                variant="outline"
+                className="text-destructive border-destructive hover:bg-destructive/10"
+                onClick={() => handleAction('rejeitar')}
+              >
+                <XCircle className="w-4 h-4 mr-2" /> Rejeitar
+              </Button>
+              <Button variant="outline" onClick={() => handleAction('devolver')}>
+                <RotateCcw className="w-4 h-4 mr-2" /> Devolver
+              </Button>
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => handleAction('aprovar_financeiro')}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" /> Aprovar
+              </Button>
+            </>
+          )}
+
+          {prestacao.status === 'aprovada' && isFinance && (
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleAction('pagar')}>
+              <Landmark className="w-4 h-4 mr-2" /> Marcar como Paga
             </Button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="col-span-2">
+      <div className="hidden print:block mb-8 text-center border-b pb-4">
+        {currentEmpresa.logo && (
+          <img
+            src={pb.files.getURL(currentEmpresa, currentEmpresa.logo)}
+            alt="Logo"
+            className="h-16 mx-auto mb-4 object-contain"
+          />
+        )}
+        <h1 className="text-2xl font-bold uppercase tracking-wider">
+          {currentEmpresa.nome_fantasia || currentEmpresa.razao_social}
+        </h1>
+        <h2 className="text-xl mt-2">Relatório de Prestação de Contas</h2>
+        <p className="text-sm mt-1">
+          Código: {prestacao.codigo} | Emissão: {format(new Date(), 'dd/MM/yyyy HH:mm')}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:grid-cols-3 print:gap-4">
+        <Card className="lg:col-span-2 shadow-sm border-border/50">
           <CardHeader>
-            <CardTitle className="text-lg">Resumo</CardTitle>
+            <CardTitle className="text-lg">Dados Principais</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Descrição</p>
-              <p className="mt-1">{prestacao.descricao || 'Sem descrição.'}</p>
-            </div>
-            {prestacao.expand?.viagem_id && (
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Viagem Relacionada</p>
-                <p className="mt-1">
-                  {prestacao.expand.viagem_id.codigo} - {prestacao.expand.viagem_id.motivo}
+                <p className="text-muted-foreground">Colaborador</p>
+                <p className="font-medium text-base">
+                  {prestacao.expand?.usuario_id?.name || prestacao.expand?.usuario_id?.email}
                 </p>
               </div>
-            )}
+              <div>
+                <p className="text-muted-foreground">Data de Envio</p>
+                <p className="font-medium text-base">
+                  {prestacao.data_envio
+                    ? format(new Date(prestacao.data_envio), 'dd/MM/yyyy')
+                    : '-'}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-muted-foreground">Viagem Relacionada</p>
+                <p className="font-medium text-base">
+                  {prestacao.expand?.viagem_id
+                    ? `${prestacao.expand.viagem_id.codigo} - ${prestacao.expand.viagem_id.motivo}`
+                    : 'Nenhuma viagem vinculada'}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-muted-foreground">Descrição</p>
+                <p className="font-medium text-base">{prestacao.descricao || 'Sem descrição.'}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/50 bg-muted/10 print:bg-white print:border">
           <CardHeader>
-            <CardTitle className="text-lg">Totais</CardTitle>
+            <CardTitle className="text-lg">Resumo Financeiro</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Despesas</span>
-              <span className="font-medium">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Total de Despesas</span>
+              <span className="font-medium text-base">
                 {prestacao.total_despesas?.toLocaleString('pt-BR', {
                   style: 'currency',
                   currency,
                 }) || (0).toLocaleString('pt-BR', { style: 'currency', currency })}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Adiantamentos</span>
-              <span className="font-medium">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Total de Adiantamentos</span>
+              <span className="font-medium text-base text-destructive">
+                -{' '}
                 {prestacao.total_adiantamento?.toLocaleString('pt-BR', {
                   style: 'currency',
                   currency,
                 }) || (0).toLocaleString('pt-BR', { style: 'currency', currency })}
               </span>
             </div>
-            <div className="border-t pt-4 flex justify-between font-bold text-lg">
+            <Separator />
+            <div className="flex justify-between items-center font-bold text-lg">
               <span>Saldo Final</span>
               <span
-                className={
+                className={cn(
                   prestacao.saldo > 0
                     ? 'text-primary'
                     : prestacao.saldo < 0
                       ? 'text-destructive'
-                      : ''
-                }
+                      : '',
+                )}
               >
                 {prestacao.saldo?.toLocaleString('pt-BR', { style: 'currency', currency }) ||
                   (0).toLocaleString('pt-BR', { style: 'currency', currency })}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground text-right mt-1">
-              {prestacao.saldo > 0
-                ? 'A pagar ao colaborador'
-                : prestacao.saldo < 0
-                  ? 'A devolver à empresa'
-                  : 'Sem saldo residual'}
-            </p>
+            <div className="bg-background rounded-md p-3 text-center border mt-2">
+              <span className="text-sm font-medium uppercase tracking-wide">
+                {prestacao.saldo > 0
+                  ? 'A pagar ao colaborador'
+                  : prestacao.saldo < 0
+                    ? 'A devolver à empresa'
+                    : 'Sem saldo residual'}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="despesas" className="mt-8">
+      <Tabs defaultValue="despesas" className="mt-8 print:hidden">
         <TabsList className="mb-4">
           <TabsTrigger value="despesas">Despesas ({despesas.length})</TabsTrigger>
           <TabsTrigger value="adiantamentos">Adiantamentos ({adiantamentos.length})</TabsTrigger>
-          <TabsTrigger value="anexos">Anexos Extras ({anexos.length})</TabsTrigger>
+          <TabsTrigger value="anexos">Anexos ({anexos.length})</TabsTrigger>
+          <TabsTrigger value="workflow">Histórico & Aprovações</TabsTrigger>
         </TabsList>
 
         <TabsContent value="despesas">
           <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="text-lg">Despesas Vinculadas</CardTitle>
-                <CardDescription>Gastos associados a esta prestação.</CardDescription>
-              </div>
-              {isOwner && isDraft && (
-                <Dialog open={vincularOpen} onOpenChange={setVincularOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <LinkIcon className="w-4 h-4 mr-2" /> Vincular
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Vincular Despesa</DialogTitle>
-                    </DialogHeader>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data</TableHead>
-                          <TableHead>Categoria</TableHead>
-                          <TableHead>Valor</TableHead>
-                          <TableHead></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dispDespesas.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={4} className="text-center">
-                              Nenhuma despesa disponível.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          dispDespesas.map((d) => (
-                            <TableRow key={d.id}>
-                              <TableCell>
-                                {format(new Date(d.data_despesa), 'dd/MM/yyyy')}
-                              </TableCell>
-                              <TableCell>{d.expand?.categoria_id?.nome}</TableCell>
-                              <TableCell>
-                                {d.valor?.toLocaleString('pt-BR', {
-                                  style: 'currency',
-                                  currency: d.expand?.moeda_id?.codigo || 'BRL',
-                                })}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button size="sm" onClick={() => handleVincularDespesa(d.id)}>
-                                  Adicionar
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[80px]">Comprovante</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead>Descrição</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {despesas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                         Nenhuma despesa vinculada.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    despesas.map((d) => (
-                      <TableRow key={d.id}>
-                        <TableCell>{format(new Date(d.data_despesa), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell>{d.expand?.categoria_id?.nome}</TableCell>
-                        <TableCell>{d.descricao || '-'}</TableCell>
-                        <TableCell className="text-right">
-                          {d.valor?.toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: d.expand?.moeda_id?.codigo || 'BRL',
-                          })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {isOwner && isDraft && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDesvincularDespesa(d.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    despesas.map((d) => {
+                      const comp = despesasComprovantes[d.id]?.[0]
+                      return (
+                        <TableRow key={d.id}>
+                          <TableCell>
+                            {comp ? (
+                              <button
+                                onClick={() => setViewerUrl(pb.files.getURL(comp, comp.arquivo))}
+                                className="w-10 h-10 rounded border overflow-hidden hover:opacity-80 transition flex items-center justify-center bg-muted"
+                              >
+                                {comp.arquivo.endsWith('.pdf') ? (
+                                  <FileText className="w-5 h-5 text-muted-foreground" />
+                                ) : (
+                                  <img
+                                    src={pb.files.getURL(comp, comp.arquivo)}
+                                    alt="Thumb"
+                                    className="w-full h-full object-cover"
+                                  />
+                                )}
+                              </button>
+                            ) : (
+                              <div className="w-10 h-10 rounded border flex items-center justify-center bg-muted/30">
+                                <ImageIcon className="w-4 h-4 text-muted/50" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>{format(new Date(d.data_despesa), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell className="font-medium">
+                            {d.expand?.categoria_id?.nome}
+                          </TableCell>
+                          <TableCell className="max-w-[200px] truncate" title={d.descricao}>
+                            {d.descricao || '-'}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold">
+                            {(d.valor_convertido || d.valor)?.toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: d.expand?.moeda_id?.codigo || 'BRL',
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   )}
                 </TableBody>
               </Table>
@@ -406,77 +423,19 @@ export default function DetalhePrestacao() {
 
         <TabsContent value="adiantamentos">
           <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="text-lg">Adiantamentos Vinculados</CardTitle>
-                <CardDescription>Valores recebidos antecipadamente.</CardDescription>
-              </div>
-              {isOwner && isDraft && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <LinkIcon className="w-4 h-4 mr-2" /> Vincular
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Vincular Adiantamento</DialogTitle>
-                    </DialogHeader>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data Ref.</TableHead>
-                          <TableHead>Justificativa</TableHead>
-                          <TableHead>Valor</TableHead>
-                          <TableHead></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dispAdiantamentos.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={4} className="text-center">
-                              Nenhum adiantamento disponível.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          dispAdiantamentos.map((a) => (
-                            <TableRow key={a.id}>
-                              <TableCell>{format(new Date(a.created), 'dd/MM/yyyy')}</TableCell>
-                              <TableCell>{a.justificativa}</TableCell>
-                              <TableCell>
-                                {a.valor?.toLocaleString('pt-BR', {
-                                  style: 'currency',
-                                  currency: a.expand?.moeda_id?.codigo || 'BRL',
-                                })}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button size="sm" onClick={() => handleVincularAdiantamento(a.id)}>
-                                  Adicionar
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Data Ref.</TableHead>
+                    <TableHead>Data</TableHead>
                     <TableHead>Justificativa</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {adiantamentos.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                      <TableCell colSpan={3} className="text-center py-6 text-muted-foreground">
                         Nenhum adiantamento vinculado.
                       </TableCell>
                     </TableRow>
@@ -485,23 +444,12 @@ export default function DetalhePrestacao() {
                       <TableRow key={a.id}>
                         <TableCell>{format(new Date(a.created), 'dd/MM/yyyy')}</TableCell>
                         <TableCell>{a.justificativa}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-semibold text-destructive">
+                          -{' '}
                           {a.valor?.toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: a.expand?.moeda_id?.codigo || 'BRL',
                           })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {isOwner && isDraft && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDesvincularAdiantamento(a.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -513,81 +461,232 @@ export default function DetalhePrestacao() {
         </TabsContent>
 
         <TabsContent value="anexos">
-          <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="text-lg">Anexos Adicionais</CardTitle>
-                <CardDescription>
-                  Documentação geral que não se enquadra em uma despesa específica.
-                </CardDescription>
-              </div>
-              {isOwner && isDraft && (
-                <div className="relative">
-                  <Input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    onChange={handleUploadAnexo}
-                    disabled={uploading}
-                  />
-                  <Button variant="outline" size="sm" disabled={uploading}>
-                    <Upload className="w-4 h-4 mr-2" /> {uploading ? 'Enviando...' : 'Fazer Upload'}
-                  </Button>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {anexos.map((a) => (
+              <Card
+                key={a.id}
+                className="overflow-hidden cursor-pointer hover:border-primary transition"
+                onClick={() => setViewerUrl(pb.files.getURL(a, a.arquivo))}
+              >
+                <div className="aspect-square bg-muted flex items-center justify-center p-4">
+                  {a.arquivo.endsWith('.pdf') ? (
+                    <FileText className="w-12 h-12 text-muted-foreground" />
+                  ) : (
+                    <img
+                      src={pb.files.getURL(a, a.arquivo)}
+                      alt="Anexo"
+                      className="w-full h-full object-contain"
+                    />
+                  )}
                 </div>
-              )}
+                <CardContent className="p-3 text-sm truncate">{a.arquivo}</CardContent>
+              </Card>
+            ))}
+            {anexos.length === 0 && (
+              <div className="col-span-full py-8 text-center text-muted-foreground">
+                Nenhum anexo adicional.
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="workflow">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <History className="w-5 h-5" /> Linha do Tempo
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Arquivo</TableHead>
-                    <TableHead>Enviado por</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {anexos.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
-                        Nenhum anexo encontrado.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    anexos.map((a) => (
-                      <TableRow key={a.id}>
-                        <TableCell className="font-medium text-primary">
-                          <a
-                            href={pb.files.getURL(a, a.arquivo)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hover:underline"
-                          >
-                            {a.arquivo}
-                          </a>
-                        </TableCell>
-                        <TableCell>{a.expand?.uploaded_by?.name || '-'}</TableCell>
-                        <TableCell>{format(new Date(a.created), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell className="text-right">
-                          {isOwner && isDraft && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveAnexo(a.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+              {workflowSteps.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  Nenhum histórico de aprovação disponível.
+                </div>
+              ) : (
+                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+                  {workflowSteps.map((step, idx) => (
+                    <div
+                      key={step.id}
+                      className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
+                    >
+                      <div
+                        className={cn(
+                          'flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2',
+                          step.status === 'aprovado'
+                            ? 'bg-primary text-primary-foreground'
+                            : step.status === 'rejeitado'
+                              ? 'bg-destructive text-destructive-foreground'
+                              : '',
+                        )}
+                      >
+                        {step.status === 'aprovado' ? (
+                          <CheckCircle className="w-5 h-5" />
+                        ) : step.status === 'rejeitado' ? (
+                          <XCircle className="w-5 h-5" />
+                        ) : (
+                          step.ordem
+                        )}
+                      </div>
+                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border bg-background shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-semibold text-sm capitalize">
+                            {step.expand?.etapa_id?.tipo_aprovador.replace('_', ' ')}
+                          </h4>
+                          <span className="text-xs text-muted-foreground">
+                            {step.decided_at
+                              ? format(new Date(step.decided_at), 'dd/MM/yyyy HH:mm')
+                              : 'Pendente'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Status: <strong className="uppercase text-xs">{step.status}</strong>
+                        </p>
+                        {step.expand?.aprovador_id && (
+                          <p className="text-xs mt-2">Aprovador: {step.expand.aprovador_id.name}</p>
+                        )}
+                        {step.comentario && (
+                          <p className="text-sm mt-2 p-2 bg-muted rounded italic">
+                            "{step.comentario}"
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Print Only Views */}
+      <div className="hidden print:block mt-8">
+        <h3 className="text-xl font-bold mb-4 border-b pb-2">1. Despesas Detalhadas</h3>
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Data</th>
+              <th className="border p-2 text-left">Categoria</th>
+              <th className="border p-2 text-left">Descrição</th>
+              <th className="border p-2 text-right">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {despesas.map((d) => (
+              <tr key={d.id}>
+                <td className="border p-2">{format(new Date(d.data_despesa), 'dd/MM/yyyy')}</td>
+                <td className="border p-2">{d.expand?.categoria_id?.nome}</td>
+                <td className="border p-2">{d.descricao || '-'}</td>
+                <td className="border p-2 text-right">
+                  {(d.valor_convertido || d.valor)?.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: d.expand?.moeda_id?.codigo || 'BRL',
+                  })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {adiantamentos.length > 0 && (
+          <>
+            <h3 className="text-xl font-bold mt-8 mb-4 border-b pb-2">
+              2. Adiantamentos Vinculados
+            </h3>
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Data</th>
+                  <th className="border p-2 text-left">Justificativa</th>
+                  <th className="border p-2 text-right">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adiantamentos.map((a) => (
+                  <tr key={a.id}>
+                    <td className="border p-2">{format(new Date(a.created), 'dd/MM/yyyy')}</td>
+                    <td className="border p-2">{a.justificativa}</td>
+                    <td className="border p-2 text-right">
+                      {a.valor?.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: a.expand?.moeda_id?.codigo || 'BRL',
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
+        <div className="mt-16 pt-8 text-center text-sm text-gray-500">
+          <p>Assinatura Eletrônica Registrada no Sistema Gestão V&D</p>
+          <p>Este documento possui validade legal conforme política interna.</p>
+        </div>
+
+        {/* Appendices for images in print */}
+        <div className="break-before-page">
+          <h3 className="text-xl font-bold mb-4 border-b pb-2">Anexos & Comprovantes</h3>
+          <div className="flex flex-col gap-8">
+            {despesas.map((d) => {
+              const comps = despesasComprovantes[d.id] || []
+              return comps.map(
+                (c) =>
+                  !c.arquivo.endsWith('.pdf') && (
+                    <div key={c.id} className="text-center break-inside-avoid">
+                      <p className="font-bold mb-2">
+                        Ref: {d.expand?.categoria_id?.nome} -{' '}
+                        {format(new Date(d.data_despesa), 'dd/MM/yyyy')}
+                      </p>
+                      <img
+                        src={pb.files.getURL(c, c.arquivo)}
+                        className="max-w-full max-h-[800px] object-contain mx-auto border p-2"
+                      />
+                    </div>
+                  ),
+              )
+            })}
+            {anexos.map(
+              (a) =>
+                !a.arquivo.endsWith('.pdf') && (
+                  <div key={a.id} className="text-center break-inside-avoid">
+                    <p className="font-bold mb-2">Anexo: {a.arquivo}</p>
+                    <img
+                      src={pb.files.getURL(a, a.arquivo)}
+                      className="max-w-full max-h-[800px] object-contain mx-auto border p-2"
+                    />
+                  </div>
+                ),
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={!!viewerUrl} onOpenChange={(open) => !open && setViewerUrl(null)}>
+        <DialogContent className="max-w-5xl h-[85vh] p-2 flex flex-col items-center justify-center bg-black/5 [&>button]:hidden">
+          <DialogTitle className="sr-only">Visualização de Arquivo</DialogTitle>
+          <DialogDescription className="sr-only">
+            Visualização do comprovante ou anexo
+          </DialogDescription>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-4 right-4 z-50 rounded-full"
+            onClick={() => setViewerUrl(null)}
+          >
+            <XCircle className="w-5 h-5" />
+          </Button>
+          {viewerUrl?.endsWith('.pdf') ? (
+            <iframe src={viewerUrl} className="w-full h-full bg-white rounded-md shadow-sm" />
+          ) : (
+            <img
+              src={viewerUrl || ''}
+              alt="Visualização"
+              className="max-w-full max-h-full object-contain rounded-md shadow-sm bg-white p-2"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
