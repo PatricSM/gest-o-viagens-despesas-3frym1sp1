@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T22:52:15.557Z",
+  "generatedAt": "2026-05-12T23:00:05.624Z",
   "collections": [
     {
       "name": "users",
@@ -1698,6 +1698,387 @@
           "type": "date",
           "required": false,
           "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "viagens",
+      "type": "base",
+      "apiRules": {
+        "list": "empresa_id = @request.auth.empresa_id && (usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && usuario_id.gestor_id = @request.auth.id))",
+        "view": "empresa_id = @request.auth.empresa_id && (usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && usuario_id.gestor_id = @request.auth.id))",
+        "create": "empresa_id = @request.auth.empresa_id && (@request.auth.id = usuario_id || @request.auth.role = 'admin')",
+        "update": "empresa_id = @request.auth.empresa_id && (@request.auth.id = usuario_id || @request.auth.role = 'admin')",
+        "delete": "empresa_id = @request.auth.empresa_id && ((@request.auth.id = usuario_id && status = 'rascunho') || @request.auth.role = 'admin')"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "usuario_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "motivo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "projeto_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "projetos"
+        },
+        {
+          "name": "centro_custo_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "centros_custo"
+        },
+        {
+          "name": "departamento_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "departamentos"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "rascunho",
+            "em_aprovacao",
+            "aprovada",
+            "em_andamento",
+            "concluida",
+            "cancelada",
+            "rejeitada",
+            "encerrada"
+          ]
+        },
+        {
+          "name": "data_envio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_aprovacao",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "workflow_run_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "politica_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "politicas"
+        },
+        {
+          "name": "politica_violacoes",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_estimado",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_viagens_codigo ON viagens (empresa_id, codigo) WHERE codigo != ''"
+      ]
+    },
+    {
+      "name": "viagem_trechos",
+      "type": "base",
+      "apiRules": {
+        "list": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "view": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "create": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "update": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "delete": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')"
+      },
+      "fields": [
+        {
+          "name": "viagem_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "viagens"
+        },
+        {
+          "name": "ordem",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "origem",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "destino",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_ida",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_volta",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_transporte",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["aereo", "rodoviario", "proprio"]
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "viagem_estimativas",
+      "type": "base",
+      "apiRules": {
+        "list": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "view": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "create": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "update": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "delete": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')"
+      },
+      "fields": [
+        {
+          "name": "viagem_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "viagens"
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["passagem", "hospedagem", "alimentacao", "transporte_local", "outros"]
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dias",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_diaria",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "viagem_acompanhantes",
+      "type": "base",
+      "apiRules": {
+        "list": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "view": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "create": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "update": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "delete": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')"
+      },
+      "fields": [
+        {
+          "name": "viagem_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "viagens"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cpf",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "parentesco",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "contato_emergencial",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "viagem_anexos",
+      "type": "base",
+      "apiRules": {
+        "list": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "view": "viagem_id.empresa_id = @request.auth.empresa_id && (viagem_id.usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && viagem_id.usuario_id.gestor_id = @request.auth.id))",
+        "create": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "update": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')",
+        "delete": "viagem_id.empresa_id = @request.auth.empresa_id && ((@request.auth.id = viagem_id.usuario_id && viagem_id.status = 'rascunho') || @request.auth.role = 'admin')"
+      },
+      "fields": [
+        {
+          "name": "viagem_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "viagens"
+        },
+        {
+          "name": "arquivo",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "uploaded_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         },
         {
           "name": "created",
