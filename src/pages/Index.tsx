@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button'
 import { SummaryCards } from '@/components/dashboard/SummaryCards'
 import { ExpensesChart } from '@/components/dashboard/ExpensesChart'
 import { RecentActivities } from '@/components/dashboard/RecentActivities'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function Index() {
+  const { user } = useAuth()
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-slide-in-bottom">
         <div>
-          <h2 className="text-display-lg text-foreground">Olá, Usuário</h2>
+          <h2 className="text-display-lg text-foreground">Olá, {user?.name || 'Usuário'}</h2>
           <p className="text-body-md text-muted-foreground mt-1">
             Aqui está o resumo das suas viagens e despesas.
           </p>

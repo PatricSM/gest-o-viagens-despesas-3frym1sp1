@@ -1,5 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Plane, Receipt, Wallet, FileText, Home, Bell } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import pb from '@/lib/pocketbase/client'
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
 export default function Layout() {
   const location = useLocation()
   const currentNav = NAV_ITEMS.find((item) => item.url === location.pathname) || NAV_ITEMS[0]
+  const { user } = useAuth()
 
   return (
     <SidebarProvider>
@@ -67,8 +70,16 @@ export default function Layout() {
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
             </Button>
             <Avatar className="w-8 h-8 cursor-pointer ring-2 ring-transparent hover:ring-primary transition-all">
-              <AvatarImage src="https://img.usecurling.com/ppl/thumbnail?gender=female&seed=1" />
-              <AvatarFallback>US</AvatarFallback>
+              <AvatarImage
+                src={
+                  user?.avatar
+                    ? pb.files.getURL(user, user.avatar)
+                    : 'https://img.usecurling.com/ppl/thumbnail?gender=female&seed=1'
+                }
+              />
+              <AvatarFallback>
+                {user?.name ? user.name.substring(0, 2).toUpperCase() : 'US'}
+              </AvatarFallback>
             </Avatar>
           </div>
         </header>
