@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T23:52:08.564Z",
+  "generatedAt": "2026-05-12T23:59:38.249Z",
   "collections": [
     {
       "name": "users",
@@ -2740,6 +2740,125 @@
           "required": false,
           "system": false,
           "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "relatorios_salvos",
+      "type": "base",
+      "apiRules": {
+        "list": "user_id = @request.auth.id",
+        "view": "user_id = @request.auth.id",
+        "create": "user_id = @request.auth.id",
+        "update": "user_id = @request.auth.id",
+        "delete": "user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "filtros",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_relatorio",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "relatorios_agendados",
+      "type": "base",
+      "apiRules": {
+        "list": "user_id = @request.auth.id",
+        "view": "user_id = @request.auth.id",
+        "create": "user_id = @request.auth.id",
+        "update": "user_id = @request.auth.id",
+        "delete": "user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "relatorio_tipo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "filtros",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "frequencia",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["weekly", "monthly"]
+        },
+        {
+          "name": "proximo_envio",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
         },
         {
           "name": "created",

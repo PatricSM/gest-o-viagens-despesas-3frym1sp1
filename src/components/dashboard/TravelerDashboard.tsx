@@ -33,21 +33,15 @@ export function TravelerDashboard() {
         pb
           .collection('viagens')
           .getList(1, 1, { filter: `usuario_id = "${user.id}" && status = "em_andamento"` }),
-        pb
-          .collection('viagens')
-          .getList(1, 1, {
-            filter: `usuario_id = "${user.id}" && (status = "aprovada" || status = "em_aprovacao")`,
-          }),
-        pb
-          .collection('despesas')
-          .getList(1, 1, {
-            filter: `usuario_id = "${user.id}" && (status = "pendente" || status = "rascunho")`,
-          }),
-        pb
-          .collection('prestacoes_contas')
-          .getList(1, 1, {
-            filter: `usuario_id = "${user.id}" && (status = "em_aprovacao_gestor" || status = "em_aprovacao_financeiro")`,
-          }),
+        pb.collection('viagens').getList(1, 1, {
+          filter: `usuario_id = "${user.id}" && (status = "aprovada" || status = "em_aprovacao")`,
+        }),
+        pb.collection('despesas').getList(1, 1, {
+          filter: `usuario_id = "${user.id}" && (status = "pendente" || status = "rascunho")`,
+        }),
+        pb.collection('prestacoes_contas').getList(1, 1, {
+          filter: `usuario_id = "${user.id}" && (status = "em_aprovacao_gestor" || status = "em_aprovacao_financeiro")`,
+        }),
         pb
           .collection('adiantamentos')
           .getFullList({ filter: `usuario_id = "${user.id}" && status = "pago"` }),
