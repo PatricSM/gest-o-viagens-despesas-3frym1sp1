@@ -106,7 +106,12 @@ const getNavGroups = (role: string | null) => {
           icon: CheckSquare,
           roles: ['admin', 'gestor', 'financeiro'],
         },
-        { title: 'Reembolsos', url: '/reembolsos', icon: Landmark, roles: ['admin', 'financeiro'] },
+        {
+          title: 'Reembolsos',
+          url: '/reembolsos',
+          icon: Landmark,
+          roles: ['admin', 'financeiro', 'auditor'],
+        },
         {
           title: 'Relatórios Analíticos',
           url: '/relatorios',

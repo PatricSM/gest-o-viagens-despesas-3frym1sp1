@@ -26,6 +26,7 @@ import NovaPrestacao from './pages/prestacoes/NovaPrestacao'
 import DetalhePrestacao from './pages/prestacoes/DetalhePrestacao'
 
 import Aprovacoes from './pages/aprovacoes/Aprovacoes'
+import Reembolsos from './pages/reembolsos/Reembolsos'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
@@ -82,8 +83,8 @@ const App = () => (
                 />
               </Route>
 
-              <Route element={<RoleGuard allowed={['financeiro', 'admin']} />}>
-                <Route path="/reembolsos" element={<PlaceholderPage title="Reembolsos" />} />
+              <Route element={<RoleGuard allowed={['financeiro', 'admin', 'auditor']} />}>
+                <Route path="/reembolsos" element={<Reembolsos />} />
               </Route>
 
               <Route element={<RoleGuard allowed={['admin', 'auditor']} />}>
