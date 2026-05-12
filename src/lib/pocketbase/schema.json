@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T22:30:24.822Z",
+  "generatedAt": "2026-05-12T22:36:56.202Z",
   "collections": [
     {
       "name": "users",
@@ -441,6 +441,655 @@
         "CREATE INDEX idx_audit_log_action ON audit_log (action)",
         "CREATE INDEX idx_audit_log_module ON audit_log (module)"
       ]
+    },
+    {
+      "name": "filiais",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_logradouro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_numero",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_complemento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_cidade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_estado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endereco_cep",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "gestor_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "departamentos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "responsavel_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "filial_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "filiais"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "departamento_pai_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "departamentos"
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "centros_custo",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "responsavel_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "orcamento_mensal",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "departamento_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "departamentos"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "projetos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_inicio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_fim",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "orcamento_total",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "centro_custo_padrao_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "centros_custo"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "encerrado", "pausado"]
+        },
+        {
+          "name": "responsavel_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "categorias_despesa",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "icone",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cor",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reembolsavel_padrao",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exige_justificativa",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "categoria_pai_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_despesa"
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "fornecedores",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cnpj",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "categoria_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_despesa"
+        },
+        {
+          "name": "contato_email",
+          "type": "email",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "contato_telefone",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "preferencial",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "moedas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "codigo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "simbolo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cotacao_atual",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cotacao_data",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "padrao",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_moedas_empresa_codigo ON moedas (empresa_id, codigo)",
+        "CREATE UNIQUE INDEX idx_moedas_empresa_padrao ON moedas (empresa_id) WHERE padrao = true"
+      ]
+    },
+    {
+      "name": "cotacao_historico",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.role = 'admin' && @request.auth.empresa_id = empresa_id"
+      },
+      "fields": [
+        {
+          "name": "moeda_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "moedas"
+        },
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "valor",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "data",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
     }
   ]
 }
