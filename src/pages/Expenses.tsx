@@ -1,4 +1,5 @@
-import { Search, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Plus, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -13,66 +14,39 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { ExpenseFormDialog } from '@/components/expenses/ExpenseFormDialog'
-
-const MOCK_EXPENSES = [
-  {
-    id: 101,
-    date: '2023-10-24',
-    desc: 'Jantar com Cliente - Restaurante Figueira',
-    category: 'Alimentação',
-    amount: 250.0,
-    status: 'Pendente',
-    trip: 'São Paulo - Out/23',
-  },
-  {
-    id: 102,
-    date: '2023-10-23',
-    desc: 'Uber Aeroporto',
-    category: 'Transporte',
-    amount: 85.5,
-    status: 'Aprovada',
-    trip: 'São Paulo - Out/23',
-  },
-  {
-    id: 103,
-    date: '2023-10-20',
-    desc: 'Material de Escritório',
-    category: 'Outros',
-    amount: 45.9,
-    status: 'Reembolsado',
-    trip: '-',
-  },
-  {
-    id: 104,
-    date: '2023-10-15',
-    desc: 'Passagem Aérea GOL',
-    category: 'Transporte',
-    amount: 1200.0,
-    status: 'Aprovada',
-    trip: 'Rio de Janeiro - Nov/23',
-  },
-  {
-    id: 105,
-    date: '2023-10-10',
-    desc: 'Café da manhã',
-    category: 'Alimentação',
-    amount: 40.0,
-    status: 'Rejeitada',
-    trip: '-',
-  },
-]
+import { getDespesas } from '@/services/despesas'
+import { useRealtime } from '@/hooks/use-realtime'
 
 export default function Expenses() {
+  const [despesas, setDespesas] = useState<any[]>([])
+
+  const loadData = async () => {
+    try {
+      const data = await getDespesas()
+      setDespesas(data)
+    } catch {
+      /* intentionally ignored */
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  useRealtime('despesas', () => {
+    loadData()
+  })
+
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto animate-slide-in-bottom">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-headline-md text-foreground">Despesas</h2>
           <p className="text-body-md text-muted-foreground mt-1">
-            Gerencie e registre seus gastos.
+            Gerencie e registre seus gastos corporativos.
           </p>
         </div>
-        <ExpenseFormDialog>
+        <ExpenseFormDialog onSuccess={loadData}>
           <Button className="shadow-elevation">
             <Plus className="w-4 h-4 mr-2" />
             Nova Despesa
@@ -102,31 +76,50 @@ export default function Expenses() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {MOCK_EXPENSES.map((exp) => (
+              {despesas.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    Nenhuma despesa registrada.
+                  </TableCell>
+                </TableRow>
+              )}
+              {despesas.map((exp) => (
                 <TableRow key={exp.id}>
                   <TableCell className="text-body-sm whitespace-nowrap">
-                    {formatDate(exp.date)}
+                    {formatDate(exp.data_despesa)}
                   </TableCell>
-                  <TableCell className="font-medium">{exp.desc}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {exp.descricao || exp.expand?.categoria_id?.nome || 'Despesa'}
+                      {exp.possivel_duplicidade && (
+                        <AlertTriangle
+                          className="w-4 h-4 text-amber-500"
+                          title="Possível Duplicidade"
+                        />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-body-sm text-muted-foreground">
-                    {exp.category}
+                    {exp.expand?.categoria_id?.nome || 'Outros'}
                   </TableCell>
-                  <TableCell className="text-body-sm">{exp.trip}</TableCell>
+                  <TableCell className="text-body-sm text-muted-foreground">
+                    {exp.expand?.viagem_id?.codigo || '-'}
+                  </TableCell>
                   <TableCell className="text-right text-data-tabular font-medium">
-                    {formatCurrency(exp.amount)}
+                    {formatCurrency(exp.valor)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant="outline"
                       className={
-                        exp.status === 'Aprovada' || exp.status === 'Reembolsado'
+                        exp.status === 'aprovada' || exp.status === 'reembolsada'
                           ? 'bg-green-100 text-green-700 border-green-200'
-                          : exp.status === 'Pendente'
-                            ? 'bg-amber-100 text-amber-700 border-amber-200'
-                            : 'bg-red-100 text-red-700 border-red-200'
+                          : exp.status === 'rejeitada'
+                            ? 'bg-red-100 text-red-700 border-red-200'
+                            : 'bg-amber-100 text-amber-700 border-amber-200'
                       }
                     >
-                      {exp.status}
+                      {exp.status.toUpperCase()}
                     </Badge>
                   </TableCell>
                 </TableRow>

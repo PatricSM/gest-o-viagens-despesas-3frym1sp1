@@ -14,6 +14,8 @@ import Dashboard from './pages/Dashboard'
 import ListaViagens from './pages/viagens/ListaViagens'
 import NovaViagem from './pages/viagens/NovaViagem'
 import DetalheViagem from './pages/viagens/DetalheViagem'
+import Expenses from './pages/Expenses'
+import Adiantamentos from './pages/Adiantamentos'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
@@ -51,12 +53,12 @@ const App = () => (
                 <Route path="/viagens" element={<ListaViagens />} />
                 <Route path="/viagens/nova" element={<NovaViagem />} />
                 <Route path="/viagens/:id" element={<DetalheViagem />} />
-                <Route path="/despesas" element={<PlaceholderPage title="Despesas" />} />
+                <Route path="/despesas" element={<Expenses />} />
                 <Route
                   path="/prestacoes"
                   element={<PlaceholderPage title="Prestações de Contas" />}
                 />
-                <Route path="/adiantamentos" element={<PlaceholderPage title="Adiantamentos" />} />
+                <Route path="/adiantamentos" element={<Adiantamentos />} />
               </Route>
 
               <Route element={<RoleGuard allowed={['gestor', 'financeiro', 'admin']} />}>
