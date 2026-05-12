@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T23:31:18.510Z",
+  "generatedAt": "2026-05-12T23:37:53.391Z",
   "collections": [
     {
       "name": "users",
@@ -2098,7 +2098,7 @@
       "indexes": []
     },
     {
-      "name": "prestacoes",
+      "name": "prestacoes_contas",
       "type": "base",
       "apiRules": {
         "list": "empresa_id = @request.auth.empresa_id && (usuario_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor' || (@request.auth.role = 'gestor' && usuario_id.gestor_id = @request.auth.id))",
@@ -2129,13 +2129,6 @@
           "system": false
         },
         {
-          "name": "status",
-          "type": "select",
-          "required": true,
-          "system": false,
-          "selectValues": ["rascunho", "em_aprovacao", "aprovada", "rejeitada", "paga"]
-        },
-        {
           "name": "created",
           "type": "autodate",
           "required": false,
@@ -2148,6 +2141,104 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "rascunho",
+            "enviada",
+            "em_aprovacao_gestor",
+            "em_aprovacao_financeiro",
+            "aprovada",
+            "paga",
+            "rejeitada",
+            "devolvida"
+          ]
+        },
+        {
+          "name": "titulo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_despesas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_adiantamento",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "saldo",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_envio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_aprovacao_gestor",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_aprovacao_financeiro",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_pagamento",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "viagem_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "viagens"
+        },
+        {
+          "name": "moeda_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "moedas"
+        },
+        {
+          "name": "workflow_run_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "workflow_runs"
+        },
+        {
+          "name": "reembolso_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "reembolsos"
         }
       ],
       "indexes": []
@@ -2250,7 +2341,7 @@
           "type": "relation",
           "required": false,
           "system": false,
-          "collectionRef": "prestacoes"
+          "collectionRef": "prestacoes_contas"
         },
         {
           "name": "workflow_run_id",
@@ -2477,7 +2568,96 @@
           "type": "relation",
           "required": false,
           "system": false,
-          "collectionRef": "prestacoes"
+          "collectionRef": "prestacoes_contas"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "reembolsos",
+      "type": "base",
+      "apiRules": {
+        "list": "empresa_id = @request.auth.empresa_id",
+        "view": "empresa_id = @request.auth.empresa_id",
+        "create": "@request.auth.role = 'admin'",
+        "update": "@request.auth.role = 'admin'",
+        "delete": "@request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "prestacao_anexos",
+      "type": "base",
+      "apiRules": {
+        "list": "prestacao_id.empresa_id = @request.auth.empresa_id",
+        "view": "prestacao_id.empresa_id = @request.auth.empresa_id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "prestacao_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "prestacoes_contas"
+        },
+        {
+          "name": "arquivo",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "uploaded_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         },
         {
           "name": "created",
