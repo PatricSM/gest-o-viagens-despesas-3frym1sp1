@@ -16,6 +16,16 @@ import Expenses from './pages/Expenses'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
+import CadastrosHub from './pages/cadastros/CadastrosHub'
+import UsuariosList from './pages/cadastros/UsuariosList'
+import DepartamentosList from './pages/cadastros/DepartamentosList'
+import CentrosCustoList from './pages/cadastros/CentrosCustoList'
+import ProjetosList from './pages/cadastros/ProjetosList'
+import CategoriasList from './pages/cadastros/CategoriasList'
+import FornecedoresList from './pages/cadastros/FornecedoresList'
+import FiliaisList from './pages/cadastros/FiliaisList'
+import MoedasList from './pages/cadastros/MoedasList'
+
 const App = () => (
   <AuthProvider>
     <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -58,10 +68,18 @@ const App = () => (
 
               <Route element={<RoleGuard allowed={['admin', 'auditor']} />}>
                 <Route path="/auditoria" element={<PlaceholderPage title="Logs de Auditoria" />} />
+                <Route path="/cadastros" element={<CadastrosHub />} />
+                <Route path="/cadastros/usuarios" element={<UsuariosList />} />
+                <Route path="/cadastros/departamentos" element={<DepartamentosList />} />
+                <Route path="/cadastros/centros-custo" element={<CentrosCustoList />} />
+                <Route path="/cadastros/projetos" element={<ProjetosList />} />
+                <Route path="/cadastros/categorias" element={<CategoriasList />} />
+                <Route path="/cadastros/fornecedores" element={<FornecedoresList />} />
+                <Route path="/cadastros/filiais" element={<FiliaisList />} />
+                <Route path="/cadastros/moedas" element={<MoedasList />} />
               </Route>
 
               <Route element={<RoleGuard allowed={['admin']} />}>
-                <Route path="/cadastros" element={<PlaceholderPage title="Cadastros Básicos" />} />
                 <Route path="/politica" element={<PlaceholderPage title="Políticas" />} />
                 <Route path="/workflows" element={<PlaceholderPage title="Workflows" />} />
                 <Route path="/configuracoes" element={<PlaceholderPage title="Configurações" />} />
