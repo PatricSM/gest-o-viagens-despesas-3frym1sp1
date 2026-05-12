@@ -11,10 +11,9 @@ import Login from './pages/auth/Login'
 import RecoverPassword from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import Dashboard from './pages/Dashboard'
-import Trips from './pages/Trips'
+import ListaViagens from './pages/viagens/ListaViagens'
 import NovaViagem from './pages/viagens/NovaViagem'
 import DetalheViagem from './pages/viagens/DetalheViagem'
-import Expenses from './pages/Expenses'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
@@ -49,10 +48,10 @@ const App = () => (
               <Route path="/notificacoes" element={<PlaceholderPage title="Notificações" />} />
 
               <Route element={<RoleGuard allowed={['viajante', 'gestor', 'admin']} />}>
-                <Route path="/viagens" element={<Trips />} />
+                <Route path="/viagens" element={<ListaViagens />} />
                 <Route path="/viagens/nova" element={<NovaViagem />} />
                 <Route path="/viagens/:id" element={<DetalheViagem />} />
-                <Route path="/despesas" element={<Expenses />} />
+                <Route path="/despesas" element={<PlaceholderPage title="Despesas" />} />
                 <Route
                   path="/prestacoes"
                   element={<PlaceholderPage title="Prestações de Contas" />}
