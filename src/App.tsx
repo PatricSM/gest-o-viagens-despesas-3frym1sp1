@@ -25,6 +25,8 @@ import CategoriasList from './pages/cadastros/CategoriasList'
 import FornecedoresList from './pages/cadastros/FornecedoresList'
 import FiliaisList from './pages/cadastros/FiliaisList'
 import MoedasList from './pages/cadastros/MoedasList'
+import PoliticasList from './pages/admin/PoliticasList'
+import WorkflowsList from './pages/admin/WorkflowsList'
 
 const App = () => (
   <AuthProvider>
@@ -80,8 +82,8 @@ const App = () => (
               </Route>
 
               <Route element={<RoleGuard allowed={['admin']} />}>
-                <Route path="/politica" element={<PlaceholderPage title="Políticas" />} />
-                <Route path="/workflows" element={<PlaceholderPage title="Workflows" />} />
+                <Route path="/politica" element={<PoliticasList />} />
+                <Route path="/workflows" element={<WorkflowsList />} />
                 <Route path="/configuracoes" element={<PlaceholderPage title="Configurações" />} />
               </Route>
             </Route>

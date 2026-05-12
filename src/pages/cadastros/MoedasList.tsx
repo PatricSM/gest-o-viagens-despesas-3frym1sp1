@@ -86,14 +86,12 @@ export default function MoedasList() {
       await pb
         .collection('moedas')
         .update(editing.id, { cotacao_atual: val, cotacao_data: new Date().toISOString() })
-      await pb
-        .collection('cotacao_historico')
-        .create({
-          moeda_id: editing.id,
-          empresa_id: currentEmpresa?.id,
-          valor: val,
-          data: new Date().toISOString(),
-        })
+      await pb.collection('cotacao_historico').create({
+        moeda_id: editing.id,
+        empresa_id: currentEmpresa?.id,
+        valor: val,
+        data: new Date().toISOString(),
+      })
       setOpenRate(false)
       toast({ title: 'Cotação atualizada' })
       load()
@@ -117,14 +115,12 @@ export default function MoedasList() {
         await pb.collection('moedas').update(editing.id, data)
       } else {
         created = await pb.collection('moedas').create(data)
-        await pb
-          .collection('cotacao_historico')
-          .create({
-            moeda_id: created.id,
-            empresa_id: currentEmpresa?.id,
-            valor: data.cotacao_atual,
-            data: new Date().toISOString(),
-          })
+        await pb.collection('cotacao_historico').create({
+          moeda_id: created.id,
+          empresa_id: currentEmpresa?.id,
+          valor: data.cotacao_atual,
+          data: new Date().toISOString(),
+        })
       }
       setOpen(false)
       toast({ title: 'Salvo com sucesso' })

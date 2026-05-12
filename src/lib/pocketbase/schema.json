@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T22:42:30.670Z",
+  "generatedAt": "2026-05-12T22:51:15.783Z",
   "collections": [
     {
       "name": "users",
@@ -1071,6 +1071,631 @@
         {
           "name": "active",
           "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "politicas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id",
+        "view": "@request.auth.empresa_id = empresa_id",
+        "create": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "versao",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "vigencia_inicio",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "vigencia_fim",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "antecedencia_minima_viagem_dias",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_max_sem_comprovante",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "politica_tetos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = politica_id.empresa_id",
+        "view": "@request.auth.empresa_id = politica_id.empresa_id",
+        "create": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "politica_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "politicas"
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["categoria", "cargo", "departamento"]
+        },
+        {
+          "name": "categoria_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_despesa"
+        },
+        {
+          "name": "cargo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "departamento_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "departamentos"
+        },
+        {
+          "name": "valor_max",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "politica_diarias",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = politica_id.empresa_id",
+        "view": "@request.auth.empresa_id = politica_id.empresa_id",
+        "create": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "politica_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "politicas"
+        },
+        {
+          "name": "cidade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "estado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "regiao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_diaria",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "hospedagem_max",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "alimentacao_max",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "politica_classes_viagem",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = politica_id.empresa_id",
+        "view": "@request.auth.empresa_id = politica_id.empresa_id",
+        "create": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "politica_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "politicas"
+        },
+        {
+          "name": "nivel_hierarquico",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "classe_aerea",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["econômica", "executiva", "primeira"]
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "politica_categorias_bloqueadas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = politica_id.empresa_id",
+        "view": "@request.auth.empresa_id = politica_id.empresa_id",
+        "create": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = politica_id.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "politica_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "politicas"
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "categoria_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "categorias_despesa"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "workflows",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id",
+        "view": "@request.auth.empresa_id = empresa_id",
+        "create": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["viagem", "despesa", "adiantamento", "prestacao"]
+        },
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "versao",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "vigencia_inicio",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "workflow_etapas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = workflow_id.empresa_id",
+        "view": "@request.auth.empresa_id = workflow_id.empresa_id",
+        "create": "@request.auth.empresa_id = workflow_id.empresa_id && @request.auth.role = 'admin'",
+        "update": "@request.auth.empresa_id = workflow_id.empresa_id && @request.auth.role = 'admin'",
+        "delete": "@request.auth.empresa_id = workflow_id.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "workflow_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "workflows"
+        },
+        {
+          "name": "ordem",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "tipo_aprovador",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["gestor_direto", "cargo", "financeiro", "custom_user"]
+        },
+        {
+          "name": "cargo_alvo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "custom_user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "alcada_valor_min",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "alcada_valor_max",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "paralela",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sla_horas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "workflow_runs",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (submitted_by = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor')",
+        "view": "@request.auth.empresa_id = empresa_id && (submitted_by = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor')",
+        "create": "@request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.empresa_id = empresa_id",
+        "delete": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "workflow_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "workflows"
+        },
+        {
+          "name": "target_collection",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "target_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["em_andamento", "aprovado", "rejeitado", "devolvido", "cancelado"]
+        },
+        {
+          "name": "submitted_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "submitted_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "finished_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "workflow_run_steps",
+      "type": "base",
+      "apiRules": {
+        "list": "run_id.empresa_id = @request.auth.empresa_id && (run_id.submitted_by = @request.auth.id || aprovador_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor')",
+        "view": "run_id.empresa_id = @request.auth.empresa_id && (run_id.submitted_by = @request.auth.id || aprovador_id = @request.auth.id || @request.auth.role = 'admin' || @request.auth.role = 'financeiro' || @request.auth.role = 'auditor')",
+        "create": "run_id.empresa_id = @request.auth.empresa_id",
+        "update": "aprovador_id = @request.auth.id",
+        "delete": "run_id.empresa_id = @request.auth.empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "run_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "workflow_runs"
+        },
+        {
+          "name": "etapa_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "workflow_etapas"
+        },
+        {
+          "name": "ordem",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "aprovador_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["pendente", "aprovado", "rejeitado", "devolvido", "pulado"]
+        },
+        {
+          "name": "comentario",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "decided_at",
+          "type": "date",
           "required": false,
           "system": false
         },
