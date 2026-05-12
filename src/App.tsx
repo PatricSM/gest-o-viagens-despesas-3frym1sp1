@@ -25,6 +25,7 @@ import ListaPrestacoes from './pages/prestacoes/ListaPrestacoes'
 import NovaPrestacao from './pages/prestacoes/NovaPrestacao'
 import DetalhePrestacao from './pages/prestacoes/DetalhePrestacao'
 
+import Aprovacoes from './pages/aprovacoes/Aprovacoes'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFound from './pages/NotFound'
 
@@ -74,7 +75,7 @@ const App = () => (
               </Route>
 
               <Route element={<RoleGuard allowed={['gestor', 'financeiro', 'admin']} />}>
-                <Route path="/aprovacoes" element={<PlaceholderPage title="Aprovações" />} />
+                <Route path="/aprovacoes" element={<Aprovacoes />} />
                 <Route
                   path="/relatorios"
                   element={<PlaceholderPage title="Relatórios Analíticos" />}
