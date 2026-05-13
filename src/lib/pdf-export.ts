@@ -1,5 +1,3 @@
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -56,185 +54,270 @@ export interface RelatorioPDFData {
   total?: { label: string; valor: number; moeda_simbolo: string }
 }
 
-const PRIMARY_COLOR = '#00288e'
-
-function addCorporateHeader(doc: jsPDF, companyName: string, title: string) {
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text(companyName, 40, 40)
-
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
-  const dateStr = format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })
-  doc.text(`Gerado em: ${dateStr}`, doc.internal.pageSize.width - 40, 40, { align: 'right' })
-
-  doc.setFontSize(18)
-  doc.setFont('helvetica', 'bold')
-  doc.text(title, doc.internal.pageSize.width / 2, 80, { align: 'center' })
-}
-
-function addFooter(doc: jsPDF) {
-  const pageCount = (doc as any).internal.getNumberOfPages()
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i)
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.text(
-      `Página ${i} de ${pageCount}`,
-      doc.internal.pageSize.width / 2,
-      doc.internal.pageSize.height - 30,
-      { align: 'center' },
-    )
-  }
+function openPrintWindow(title: string, htmlContent: string) {
+  const win = window.open('', '_blank')
+  if (!win) return
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.5; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+          th { background-color: #00288e; color: #fff; }
+          .header { margin-bottom: 30px; border-bottom: 2px solid #00288e; padding-bottom: 10px; }
+          .header h1 { margin: 0 0 10px 0; font-size: 20px; color: #00288e; }
+          .header p { margin: 5px 0; font-size: 12px; color: #555; }
+          .text-right { text-align: right; }
+          .text-center { text-align: center; }
+          .font-bold { font-weight: bold; }
+          .section-title { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: #00288e; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+          .summary-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-top: 20px; width: 300px; float: right; }
+          .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px;}
+          .summary-row.total { font-weight: bold; font-size: 14px; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; }
+          .clearfix::after { content: ""; clear: both; display: table; }
+          @media print {
+            body { padding: 0; }
+            button { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+        <script>
+          window.onload = () => {
+            window.print();
+          }
+        </script>
+      </body>
+    </html>
+  `)
+  win.document.close()
 }
 
 export function exportPrestacaoPDF(data: PrestacaoPDFData) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+  const dateStr = format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })
 
-  addCorporateHeader(doc, data.empresa_nome, 'Relatório de Prestação de Contas')
-
-  doc.setFontSize(10)
-  doc.text(`Código: ${data.codigo}`, 40, 110)
-  doc.text(`Título: ${data.titulo}`, 40, 125)
-  doc.text(`Colaborador: ${data.viajante_nome}`, 40, 140)
-  if (data.viagem_codigo) {
-    doc.text(`Viagem: ${data.viagem_codigo}`, 40, 155)
-  }
-
-  doc.text(
-    `Período: ${data.periodo.inicio} a ${data.periodo.fim}`,
-    doc.internal.pageSize.width - 40,
-    110,
-    { align: 'right' },
-  )
-
-  // Resumo financeiro
-  autoTable(doc, {
-    startY: 180,
-    head: [['Resumo Financeiro', 'Valor']],
-    body: [
-      ['Total de Despesas', `${data.moeda_simbolo} ${data.total_despesas.toFixed(2)}`],
-      ['Total de Adiantamentos', `${data.moeda_simbolo} ${data.total_adiantamento.toFixed(2)}`],
-      ['Saldo Final', `${data.moeda_simbolo} ${data.saldo.toFixed(2)}`],
-    ],
-    headStyles: { fillColor: PRIMARY_COLOR, textColor: '#ffffff' },
-    theme: 'striped',
+  let despesasHtml = ''
+  data.despesas.forEach((d) => {
+    despesasHtml += `
+      <tr>
+        <td>${d.data}</td>
+        <td>${d.categoria}</td>
+        <td>${d.fornecedor}</td>
+        <td>${d.descricao}</td>
+        <td class="text-right">${data.moeda_simbolo} ${d.valor.toFixed(2)}</td>
+      </tr>
+    `
   })
 
-  // Despesas
-  autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 30,
-    head: [['Data', 'Categoria', 'Fornecedor', 'Descrição', 'Valor']],
-    body: data.despesas.map((d) => [
-      d.data,
-      d.categoria,
-      d.fornecedor,
-      d.descricao,
-      `${data.moeda_simbolo} ${d.valor.toFixed(2)}`,
-    ]),
-    headStyles: { fillColor: PRIMARY_COLOR, textColor: '#ffffff' },
-    theme: 'striped',
-  })
-
-  // Timeline de aprovação
+  let timelineHtml = ''
   if (data.timeline && data.timeline.length > 0) {
-    autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 30,
-      head: [['Etapa', 'Aprovador', 'Data', 'Comentário']],
-      body: data.timeline.map((t) => [t.etapa, t.aprovador, t.data, t.comentario]),
-      headStyles: { fillColor: PRIMARY_COLOR, textColor: '#ffffff' },
-      theme: 'striped',
+    data.timeline.forEach((t) => {
+      timelineHtml += `
+        <tr>
+          <td>${t.etapa}</td>
+          <td>${t.aprovador}</td>
+          <td>${t.data}</td>
+          <td>${t.comentario}</td>
+        </tr>
+      `
     })
   }
 
-  // TODO: Em uma versão futura, adicionar a opção de anexar imagens de comprovantes no final do PDF.
+  const html = `
+    <div class="header">
+      <div style="float: right; text-align: right;">
+        <p>Gerado em: ${dateStr}</p>
+      </div>
+      <h1>${data.empresa_nome}</h1>
+      <p style="font-size: 18px; font-weight: bold; margin-top: 15px;">Relatório de Prestação de Contas</p>
+    </div>
 
-  addFooter(doc)
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px;">
+      <div>
+        <p><strong>Código:</strong> ${data.codigo}</p>
+        <p><strong>Título:</strong> ${data.titulo}</p>
+        <p><strong>Colaborador:</strong> ${data.viajante_nome}</p>
+        ${data.viagem_codigo ? `<p><strong>Viagem:</strong> ${data.viagem_codigo}</p>` : ''}
+      </div>
+      <div style="text-align: right;">
+        <p><strong>Período:</strong> ${data.periodo.inicio} a ${data.periodo.fim}</p>
+      </div>
+    </div>
 
-  const filename = `prestacao_${data.codigo || 'sem_codigo'}_${format(new Date(), 'yyyyMMdd')}.pdf`
-  doc.save(filename)
+    <div class="section-title">Despesas Detalhadas</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Categoria</th>
+          <th>Fornecedor</th>
+          <th>Descrição</th>
+          <th class="text-right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${despesasHtml || '<tr><td colspan="5" class="text-center">Nenhuma despesa registrada.</td></tr>'}
+      </tbody>
+    </table>
+
+    <div class="clearfix">
+      <div class="summary-box">
+        <div class="summary-row">
+          <span>Total de Despesas:</span>
+          <span>${data.moeda_simbolo} ${data.total_despesas.toFixed(2)}</span>
+        </div>
+        <div class="summary-row">
+          <span>Adiantamentos:</span>
+          <span style="color: red;">- ${data.moeda_simbolo} ${data.total_adiantamento.toFixed(2)}</span>
+        </div>
+        <div class="summary-row total">
+          <span>Saldo Final:</span>
+          <span>${data.moeda_simbolo} ${data.saldo.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+
+    ${
+      data.timeline && data.timeline.length > 0
+        ? `
+      <div style="margin-top: 40px;">
+        <div class="section-title">Histórico de Aprovação</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Etapa</th>
+              <th>Aprovador</th>
+              <th>Data</th>
+              <th>Comentário</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${timelineHtml}
+          </tbody>
+        </table>
+      </div>
+    `
+        : ''
+    }
+  `
+
+  openPrintWindow(`Prestacao_${data.codigo}`, html)
 }
 
 export function exportRemessaPDF(data: RemessaPDFData) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
-
-  addCorporateHeader(doc, data.empresa_nome, 'Remessa de Pagamentos')
-
-  doc.setFontSize(10)
-  doc.text(`Data de Geração: ${data.data_geracao}`, 40, 110)
-
   const total = data.reembolsos.reduce((acc, r) => acc + r.valor, 0)
 
-  autoTable(doc, {
-    startY: 130,
-    head: [['Código', 'Colaborador', 'Dados Bancários', 'Chave PIX', 'Prestação', 'Valor']],
-    body: data.reembolsos.map((r) => [
-      r.codigo,
-      `${r.colaborador}\nCPF: ${r.cpf}`,
-      `${r.banco_destino}\nAg: ${r.agencia_destino}\nCC: ${r.conta_destino}`,
-      r.chave_pix || '-',
-      r.prestacao_codigo,
-      `R$ ${r.valor.toFixed(2)}`,
-    ]),
-    foot: [['', '', '', '', 'Total', `R$ ${total.toFixed(2)}`]],
-    headStyles: { fillColor: PRIMARY_COLOR, textColor: '#ffffff' },
-    footStyles: { fillColor: '#e2e8f0', textColor: '#000000', fontStyle: 'bold' },
-    theme: 'striped',
-    styles: { fontSize: 8, cellPadding: 4 },
+  let rowsHtml = ''
+  data.reembolsos.forEach((r) => {
+    rowsHtml += `
+      <tr>
+        <td>${r.codigo}</td>
+        <td>${r.colaborador}<br/><small>CPF: ${r.cpf}</small></td>
+        <td>${r.banco_destino}<br/><small>Ag: ${r.agencia_destino} CC: ${r.conta_destino}</small></td>
+        <td>${r.chave_pix || '-'}</td>
+        <td>${r.prestacao_codigo}</td>
+        <td class="text-right">R$ ${r.valor.toFixed(2)}</td>
+      </tr>
+    `
   })
 
-  addFooter(doc)
+  const html = `
+    <div class="header">
+      <h1>${data.empresa_nome}</h1>
+      <p style="font-size: 18px; font-weight: bold; margin-top: 15px;">Remessa de Pagamentos</p>
+      <p>Data de Geração: ${data.data_geracao}</p>
+    </div>
 
-  const filename = `remessa_pagamentos_${format(new Date(), 'yyyyMMdd')}.pdf`
-  doc.save(filename)
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Colaborador</th>
+          <th>Dados Bancários</th>
+          <th>Chave PIX</th>
+          <th>Prestação</th>
+          <th class="text-right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml || '<tr><td colspan="6" class="text-center">Nenhum pagamento na remessa.</td></tr>'}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" class="text-right font-bold">Total:</td>
+          <td class="text-right font-bold">R$ ${total.toFixed(2)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `
+
+  openPrintWindow(`Remessa_Pagamentos`, html)
 }
 
 export function exportRelatorioPDF(data: RelatorioPDFData) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+  const dateStr = format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })
 
-  addCorporateHeader(doc, data.empresa_nome, data.titulo)
-
-  let currentY = 110
-  if (data.subtitulo) {
-    doc.setFontSize(12)
-    doc.text(data.subtitulo, doc.internal.pageSize.width / 2, currentY, { align: 'center' })
-    currentY += 20
-  }
-
+  let filtersHtml = ''
   const filters = Object.entries(data.filtros_aplicados)
   if (filters.length > 0) {
-    doc.setFontSize(10)
-    doc.text('Filtros Aplicados:', 40, currentY)
-    currentY += 15
+    filtersHtml =
+      '<div style="margin-bottom: 20px; font-size: 12px;"><strong>Filtros Aplicados:</strong><br/>'
     filters.forEach(([key, value]) => {
-      doc.text(`${key}: ${value}`, 50, currentY)
-      currentY += 12
+      filtersHtml += `<span>${key}: ${value}</span><br/>`
     })
-    currentY += 10
+    filtersHtml += '</div>'
   }
 
-  autoTable(doc, {
-    startY: currentY,
-    head: [data.colunas],
-    body: data.linhas,
-    headStyles: { fillColor: PRIMARY_COLOR, textColor: '#ffffff' },
-    theme: 'striped',
+  let headHtml = '<tr>'
+  data.colunas.forEach((col) => {
+    headHtml += `<th>${col}</th>`
+  })
+  headHtml += '</tr>'
+
+  let bodyHtml = ''
+  data.linhas.forEach((row) => {
+    bodyHtml += '<tr>'
+    row.forEach((cell) => {
+      bodyHtml += `<td>${cell}</td>`
+    })
+    bodyHtml += '</tr>'
   })
 
-  if (data.total) {
-    const finalY = (doc as any).lastAutoTable.finalY + 20
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(
-      `${data.total.label}: ${data.total.moeda_simbolo} ${data.total.valor.toFixed(2)}`,
-      doc.internal.pageSize.width - 40,
-      finalY,
-      { align: 'right' },
-    )
-  }
+  const html = `
+    <div class="header">
+      <div style="float: right; text-align: right;">
+        <p>Gerado em: ${dateStr}</p>
+      </div>
+      <h1>${data.empresa_nome}</h1>
+      <p style="font-size: 18px; font-weight: bold; margin-top: 15px;">${data.titulo}</p>
+      ${data.subtitulo ? `<p style="font-size: 14px;">${data.subtitulo}</p>` : ''}
+    </div>
 
-  addFooter(doc)
+    ${filtersHtml}
 
-  const filename = `relatorio_${format(new Date(), 'yyyyMMdd')}.pdf`
-  doc.save(filename)
+    <table>
+      <thead>
+        ${headHtml}
+      </thead>
+      <tbody>
+        ${bodyHtml || `<tr><td colspan="${data.colunas.length}" class="text-center">Sem dados.</td></tr>`}
+      </tbody>
+    </table>
+
+    ${
+      data.total
+        ? `
+      <div class="text-right" style="margin-top: 20px; font-size: 16px;">
+        <strong>${data.total.label}:</strong> ${data.total.moeda_simbolo} ${data.total.valor.toFixed(2)}
+      </div>
+    `
+        : ''
+    }
+  `
+
+  openPrintWindow(`Relatorio`, html)
 }
