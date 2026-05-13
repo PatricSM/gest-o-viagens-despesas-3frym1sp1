@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Combobox } from '@/components/common/Combobox'
 
 const steps = [
   { id: 1, name: 'Informações Básicas' },
@@ -55,7 +56,7 @@ export default function NovaPrestacao() {
   // Form State
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
-  const [viagemId, setViagemId] = useState('none')
+  const [viagemId, setViagemId] = useState('')
   const [moedaId, setMoedaId] = useState('')
 
   const [selectedDespesas, setSelectedDespesas] = useState<Set<string>>(new Set())
@@ -85,23 +86,18 @@ export default function NovaPrestacao() {
     if (!currentEmpresa || !user) return
     const d = await getDespesasDisponiveis(currentEmpresa.id, user.id)
     // Filter by viagem if selected
-    const filtered =
-      viagemId && viagemId !== 'none'
-        ? d.filter((item: any) => item.viagem_id === viagemId || !item.viagem_id)
-        : d
+    const filtered = viagemId
+      ? d.filter((item: any) => item.viagem_id === viagemId || !item.viagem_id)
+      : d
     setDispDespesas(filtered)
   }
 
   const loadAdiantamentos = async () => {
     if (!currentEmpresa || !user) return
-    const a = await getAdiantamentosDisponiveis(
-      currentEmpresa.id,
-      user.id,
-      viagemId === 'none' ? undefined : viagemId,
-    )
+    const a = await getAdiantamentosDisponiveis(currentEmpresa.id, user.id, viagemId || undefined)
     setDispAdiantamentos(a)
     // auto select all if they belong to the selected trip
-    if (viagemId && viagemId !== 'none') {
+    if (viagemId) {
       const tripAdvs = new Set(
         a.filter((item: any) => item.viagem_id === viagemId).map((item: any) => item.id),
       )
@@ -159,7 +155,7 @@ export default function NovaPrestacao() {
       const prestacao = await createPrestacao({
         titulo,
         descricao,
-        viagem_id: viagemId === 'none' ? null : viagemId,
+        viagem_id: viagemId || null,
         moeda_id: moedaId,
         empresa_id: currentEmpresa.id,
         usuario_id: user.id,
@@ -223,19 +219,16 @@ export default function NovaPrestacao() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Viagem Associada (Opcional)</Label>
-                <Select value={viagemId} onValueChange={setViagemId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhuma</SelectItem>
-                    {viagens.map((v) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.codigo} - {v.motivo}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={viagens.map((v) => ({
+                    value: v.id,
+                    label: v.codigo,
+                    description: v.motivo,
+                  }))}
+                  value={viagemId}
+                  onChange={setViagemId}
+                  placeholder="Selecione..."
+                />
               </div>
               <div className="space-y-2">
                 <Label>Moeda Base *</Label>

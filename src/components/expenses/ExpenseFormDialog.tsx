@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/common/Combobox'
+import pb from '@/lib/pocketbase/client'
 import {
   Dialog,
   DialogContent,
@@ -36,11 +38,19 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
 
   const [categorias, setCategorias] = useState<any[]>([])
   const [moedas, setMoedas] = useState<any[]>([])
+  const [fornecedores, setFornecedores] = useState<any[]>([])
+  const [centrosCusto, setCentrosCusto] = useState<any[]>([])
+  const [projetos, setProjetos] = useState<any[]>([])
+  const [viagens, setViagens] = useState<any[]>([])
   const [file, setFile] = useState<File | null>(null)
 
   const [formData, setFormData] = useState({
     data_despesa: '',
     categoria_id: '',
+    fornecedor_id: '',
+    centro_custo_id: '',
+    projeto_id: '',
+    viagem_id: '',
     valor: '',
     moeda_id: '',
     descricao: '',
@@ -56,10 +66,40 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
           if (padrao) setFormData((prev) => ({ ...prev, moeda_id: padrao.id }))
         })
         .catch(console.error)
+
+      if (user?.empresa_id) {
+        pb.collection('fornecedores')
+          .getFullList({ filter: `empresa_id="${user.empresa_id}"` })
+          .then(setFornecedores)
+          .catch(console.error)
+        pb.collection('centros_custo')
+          .getFullList({ filter: `empresa_id="${user.empresa_id}"` })
+          .then(setCentrosCusto)
+          .catch(console.error)
+        pb.collection('projetos')
+          .getFullList({ filter: `empresa_id="${user.empresa_id}"` })
+          .then(setProjetos)
+          .catch(console.error)
+        pb.collection('viagens')
+          .getFullList({ filter: `empresa_id="${user.empresa_id}" && usuario_id="${user.id}"` })
+          .then(setViagens)
+          .catch(console.error)
+      }
+
       setFile(null)
-      setFormData({ data_despesa: '', categoria_id: '', valor: '', moeda_id: '', descricao: '' })
+      setFormData({
+        data_despesa: '',
+        categoria_id: '',
+        fornecedor_id: '',
+        centro_custo_id: '',
+        projeto_id: '',
+        viagem_id: '',
+        valor: '',
+        moeda_id: '',
+        descricao: '',
+      })
     }
-  }, [open])
+  }, [open, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,6 +114,10 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
           status: 'pendente',
           data_despesa: new Date(formData.data_despesa).toISOString(),
           categoria_id: formData.categoria_id,
+          fornecedor_id: formData.fornecedor_id || null,
+          centro_custo_id: formData.centro_custo_id || null,
+          projeto_id: formData.projeto_id || null,
+          viagem_id: formData.viagem_id || null,
           valor: parseFloat(formData.valor),
           moeda_id: formData.moeda_id,
           descricao: formData.descricao,
@@ -116,23 +160,13 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="category">Categoria</Label>
-                <Select
-                  required
+                <Label>Categoria *</Label>
+                <Combobox
+                  options={categorias.map((c) => ({ value: c.id, label: c.nome }))}
                   value={formData.categoria_id}
-                  onValueChange={(v) => setFormData({ ...formData, categoria_id: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categorias.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(v) => setFormData({ ...formData, categoria_id: v })}
+                  placeholder="Selecione a categoria"
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="currency">Moeda</Label>
@@ -152,6 +186,57 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Centro de Custo</Label>
+                <Combobox
+                  options={centrosCusto.map((c) => ({
+                    value: c.id,
+                    label: c.nome,
+                    description: c.codigo,
+                  }))}
+                  value={formData.centro_custo_id}
+                  onChange={(v) => setFormData({ ...formData, centro_custo_id: v })}
+                  placeholder="Opcional"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Projeto</Label>
+                <Combobox
+                  options={projetos.map((p) => ({ value: p.id, label: p.nome }))}
+                  value={formData.projeto_id}
+                  onChange={(v) => setFormData({ ...formData, projeto_id: v })}
+                  placeholder="Opcional"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Fornecedor</Label>
+                <Combobox
+                  options={fornecedores.map((f) => ({
+                    value: f.id,
+                    label: f.nome_fantasia || f.razao_social,
+                  }))}
+                  value={formData.fornecedor_id}
+                  onChange={(v) => setFormData({ ...formData, fornecedor_id: v })}
+                  placeholder="Opcional"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Viagem Associada</Label>
+                <Combobox
+                  options={viagens.map((v) => ({
+                    value: v.id,
+                    label: v.codigo,
+                    description: v.motivo,
+                  }))}
+                  value={formData.viagem_id}
+                  onChange={(v) => setFormData({ ...formData, viagem_id: v })}
+                  placeholder="Opcional"
+                />
               </div>
             </div>
             <div className="grid gap-2">

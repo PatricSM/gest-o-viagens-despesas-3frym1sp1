@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Combobox } from '@/components/common/Combobox'
 import { useAuth } from '@/hooks/use-auth'
 import { createAdiantamento } from '@/services/adiantamentos'
 import { getMoedas, getViagens } from '@/services/despesas'
@@ -125,20 +126,18 @@ export default function NovoAdiantamento() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Viagem Associada</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a viagem..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {viagens.map((v) => (
-                            <SelectItem key={v.id} value={v.id}>
-                              {v.codigo} - {v.motivo}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Combobox
+                          options={viagens.map((v) => ({
+                            value: v.id,
+                            label: v.codigo,
+                            description: v.motivo,
+                          }))}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Selecione a viagem..."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

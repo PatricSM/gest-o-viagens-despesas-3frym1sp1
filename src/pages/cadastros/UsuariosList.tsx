@@ -31,6 +31,7 @@ import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Search, Users } from 'lucide-react'
+import { Combobox } from '@/components/common/Combobox'
 
 export default function UsuariosList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -47,6 +48,9 @@ export default function UsuariosList() {
   const [depts, setDepts] = useState<any[]>([])
   const [costCenters, setCostCenters] = useState<any[]>([])
   const [managers, setManagers] = useState<any[]>([])
+  const [selectedDept, setSelectedDept] = useState('')
+  const [selectedCostCenter, setSelectedCostCenter] = useState('')
+  const [selectedManager, setSelectedManager] = useState('')
 
   const load = async () => {
     if (!currentEmpresa) return
@@ -157,6 +161,9 @@ export default function UsuariosList() {
             <Button
               onClick={() => {
                 setEditing(null)
+                setSelectedDept('')
+                setSelectedCostCenter('')
+                setSelectedManager('')
                 setOpen(true)
               }}
             >
@@ -241,7 +248,10 @@ export default function UsuariosList() {
                     {!isReadOnly && (
                       <DropdownMenuItem
                         onClick={() => {
-                          setEditing(u)
+                          setEditing(null)
+                          setSelectedDept('')
+                          setSelectedCostCenter('')
+                          setSelectedManager('')
                           setOpen(true)
                         }}
                       >
@@ -312,48 +322,34 @@ export default function UsuariosList() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Departamento</label>
-              <select
-                name="departamento_id"
-                defaultValue={editing?.departamento_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Selecione...</option>
-                {depts.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.nome}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="departamento_id" value={selectedDept} />
+              <Combobox
+                options={depts.map((d) => ({ value: d.id, label: d.nome }))}
+                value={selectedDept}
+                onChange={setSelectedDept}
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Centro de Custo</label>
-              <select
-                name="centro_custo_id"
-                defaultValue={editing?.centro_custo_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Selecione...</option>
-                {costCenters.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="centro_custo_id" value={selectedCostCenter} />
+              <Combobox
+                options={costCenters.map((c) => ({
+                  value: c.id,
+                  label: c.nome,
+                  description: c.codigo,
+                }))}
+                value={selectedCostCenter}
+                onChange={setSelectedCostCenter}
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Gestor Direto</label>
-              <select
-                name="gestor_id"
-                defaultValue={editing?.gestor_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Selecione...</option>
-                {managers.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="gestor_id" value={selectedManager} />
+              <Combobox
+                options={managers.map((m) => ({ value: m.id, label: m.name || m.email }))}
+                value={selectedManager}
+                onChange={setSelectedManager}
+              />
             </div>
 
             <div className="col-span-1 md:col-span-2 text-sm font-semibold mt-4 border-b pb-2">

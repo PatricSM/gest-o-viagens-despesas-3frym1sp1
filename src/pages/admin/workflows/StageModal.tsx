@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Combobox } from '@/components/common/Combobox'
 import * as adminService from '@/services/admin'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -127,21 +128,12 @@ export default function StageModal({ etapa, workflowId, order, onSave, onDelete,
           {form.tipo_aprovador === 'custom_user' && (
             <div className="space-y-2">
               <Label>Usuário</Label>
-              <Select
+              <Combobox
+                options={users.map((u) => ({ value: u.id, label: u.name || u.email }))}
                 value={form.custom_user_id}
-                onValueChange={(v) => setForm({ ...form, custom_user_id: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>
-                      {u.name || u.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setForm({ ...form, custom_user_id: v })}
+                placeholder="Selecione um usuário"
+              />
             </div>
           )}
           <div className="grid grid-cols-2 gap-4">

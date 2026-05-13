@@ -24,6 +24,7 @@ import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Search, Network } from 'lucide-react'
+import { Combobox } from '@/components/common/Combobox'
 
 export default function DepartamentosList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -37,6 +38,9 @@ export default function DepartamentosList() {
 
   const [users, setUsers] = useState<any[]>([])
   const [filiais, setFiliais] = useState<any[]>([])
+  const [selectedParent, setSelectedParent] = useState('')
+  const [selectedManager, setSelectedManager] = useState('')
+  const [selectedFilial, setSelectedFilial] = useState('')
 
   const load = async () => {
     if (!currentEmpresa) return
@@ -123,6 +127,9 @@ export default function DepartamentosList() {
           <Button
             onClick={() => {
               setEditing(null)
+              setSelectedParent('')
+              setSelectedManager('')
+              setSelectedFilial('')
               setOpen(true)
             }}
           >
@@ -198,7 +205,10 @@ export default function DepartamentosList() {
                     {!isReadOnly && (
                       <DropdownMenuItem
                         onClick={() => {
-                          setEditing(d)
+                          setEditing(null)
+                          setSelectedParent('')
+                          setSelectedManager('')
+                          setSelectedFilial('')
                           setOpen(true)
                         }}
                       >
@@ -237,50 +247,33 @@ export default function DepartamentosList() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Departamento Pai</label>
-              <select
-                name="departamento_pai_id"
-                defaultValue={editing?.departamento_pai_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Nenhum (Raiz)</option>
-                {raw
+              <input type="hidden" name="departamento_pai_id" value={selectedParent} />
+              <Combobox
+                options={raw
                   .filter((r) => r.id !== editing?.id)
-                  .map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.nome}
-                    </option>
-                  ))}
-              </select>
+                  .map((r) => ({ value: r.id, label: r.nome }))}
+                value={selectedParent}
+                onChange={setSelectedParent}
+                placeholder="Nenhum (Raiz)"
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Responsável</label>
-              <select
-                name="responsavel_id"
-                defaultValue={editing?.responsavel_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Selecione...</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="responsavel_id" value={selectedManager} />
+              <Combobox
+                options={users.map((u) => ({ value: u.id, label: u.name || u.email }))}
+                value={selectedManager}
+                onChange={setSelectedManager}
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Filial</label>
-              <select
-                name="filial_id"
-                defaultValue={editing?.filial_id}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Selecione...</option>
-                {filiais.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nome}
-                  </option>
-                ))}
-              </select>
+              <input type="hidden" name="filial_id" value={selectedFilial} />
+              <Combobox
+                options={filiais.map((f) => ({ value: f.id, label: f.nome }))}
+                value={selectedFilial}
+                onChange={setSelectedFilial}
+              />
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>

@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Combobox } from '@/components/common/Combobox'
 import { getViagem, createViagem, updateViagem } from '@/services/viagens'
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
@@ -135,20 +136,18 @@ export function Step1General({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Centro de Custo *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {centros.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.codigo} - {c.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Combobox
+                    options={centros.map((c) => ({
+                      value: c.id,
+                      label: c.nome,
+                      description: c.codigo,
+                    }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Selecione..."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -160,20 +159,14 @@ export function Step1General({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Departamento *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {departamentos.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Combobox
+                    options={departamentos.map((d) => ({ value: d.id, label: d.nome }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Selecione..."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -185,21 +178,14 @@ export function Step1General({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Projeto (Opcional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="">Nenhum projeto</SelectItem>
-                    {projetos.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Combobox
+                    options={projetos.map((p) => ({ value: p.id, label: p.nome }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Nenhum projeto"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
