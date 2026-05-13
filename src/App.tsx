@@ -44,6 +44,9 @@ import PoliticasList from './pages/admin/PoliticasList'
 import WorkflowsList from './pages/admin/WorkflowsList'
 import Auditoria from './pages/admin/Auditoria'
 import AuditoriaDuplicadas from './pages/admin/AuditoriaDuplicadas'
+import Configuracoes from './pages/admin/Configuracoes'
+import Perfil from './pages/Perfil'
+import Notificacoes from './pages/Notificacoes'
 
 const App = () => (
   <AuthProvider>
@@ -60,8 +63,8 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/perfil" element={<PlaceholderPage title="Meu Perfil" />} />
-              <Route path="/notificacoes" element={<PlaceholderPage title="Notificações" />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/notificacoes" element={<Notificacoes />} />
 
               <Route element={<RoleGuard allowed={['viajante', 'gestor', 'admin']} />}>
                 <Route path="/viagens" element={<ListaViagens />} />
@@ -110,7 +113,7 @@ const App = () => (
               <Route element={<RoleGuard allowed={['admin']} />}>
                 <Route path="/politica" element={<PoliticasList />} />
                 <Route path="/workflows" element={<WorkflowsList />} />
-                <Route path="/configuracoes" element={<PlaceholderPage title="Configurações" />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
               </Route>
             </Route>
           </Route>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -47,6 +47,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Badge } from '@/components/ui/badge'
+import { CommandPalette } from './CommandPalette'
+import { useRealtime } from '@/hooks/use-realtime'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
 
 const getNavGroups = (role: string | null) => {
   const groups = [
@@ -153,6 +160,44 @@ export default function Layout() {
 
   const [showSwitchCompany, setShowSwitchCompany] = useState(false)
 
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [latestNotifs, setLatestNotifs] = useState<any[]>([])
+
+  const fetchNotifications = useCallback(async () => {
+    if (!user || !currentEmpresa) return
+    try {
+      const list = await pb.collection('notificacoes').getList(1, 5, {
+        filter: `user_id = "${user.id}" && empresa_id = "${currentEmpresa.id}"`,
+        sort: '-created',
+      })
+      setLatestNotifs(list.items)
+
+      const countRes = await pb.collection('notificacoes').getList(1, 1, {
+        filter: `user_id = "${user.id}" && empresa_id = "${currentEmpresa.id}" && lida = false`,
+      })
+      setUnreadCount(countRes.totalItems)
+    } catch {
+      /* intentionally ignored */
+    }
+  }, [user, currentEmpresa])
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
+
+  useRealtime('notificacoes', () => {
+    fetchNotifications()
+  })
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await pb.collection('notificacoes').update(id, { lida: true })
+      fetchNotifications()
+    } catch {
+      /* intentionally ignored */
+    }
+  }
+
   const navGroups = getNavGroups(userRole)
   const currentNavTitle =
     navGroups
@@ -231,22 +276,77 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative hidden lg:flex items-center">
+            <div
+              className="relative hidden lg:flex items-center cursor-pointer"
+              onClick={() => {
+                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+              }}
+            >
               <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Busca global (Cmd+K)"
-                className="w-64 pl-9 bg-muted/50 border-none focus-visible:ring-1"
-              />
+              <div className="flex h-9 w-64 items-center rounded-md border border-input bg-muted/50 px-3 py-1 text-sm shadow-sm text-muted-foreground">
+                <span className="pl-6">Busca global (Cmd+K)</span>
+              </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-muted-foreground hover:bg-muted"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-muted-foreground hover:bg-muted"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 px-1 min-w-4 h-4 text-[10px] flex items-center justify-center rounded-full"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-0">
+                <div className="flex items-center justify-between p-3 border-b">
+                  <span className="font-semibold text-sm">Notificações</span>
+                  <Link to="/notificacoes" className="text-xs text-primary hover:underline">
+                    Ver todas
+                  </Link>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {latestNotifs.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      Nenhuma notificação.
+                    </div>
+                  ) : (
+                    latestNotifs.map((n) => (
+                      <div
+                        key={n.id}
+                        className={cn(
+                          'p-3 border-b text-sm cursor-pointer hover:bg-muted/50 transition-colors',
+                          !n.lida && 'bg-primary/5',
+                        )}
+                        onClick={() => {
+                          if (!n.lida) handleMarkAsRead(n.id)
+                          if (n.link_url) navigate(n.link_url)
+                        }}
+                      >
+                        <div className="font-medium text-foreground">{n.titulo}</div>
+                        <div className="text-muted-foreground text-xs mt-0.5 line-clamp-2">
+                          {n.mensagem}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground/70 mt-1">
+                          {formatDistanceToNow(new Date(n.created), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -308,6 +408,8 @@ export default function Layout() {
           <Outlet />
         </main>
       </SidebarInset>
+
+      <CommandPalette />
 
       <Dialog open={showSwitchCompany} onOpenChange={setShowSwitchCompany}>
         <DialogContent className="sm:max-w-md">
