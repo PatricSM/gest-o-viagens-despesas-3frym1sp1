@@ -277,7 +277,7 @@ export default function DetalhePrestacao() {
         </div>
       </div>
 
-      <div className="hidden print:block mb-8 text-center border-b pb-4">
+      <div className="hidden print:block mb-8 text-center border-b border-outline-variant pb-4">
         {currentEmpresa.logo && (
           <img
             src={pb.files.getURL(currentEmpresa, currentEmpresa.logo)}
@@ -295,7 +295,7 @@ export default function DetalhePrestacao() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:grid-cols-3 print:gap-4">
-        <Card className="lg:col-span-2 shadow-sm border-border/50">
+        <Card className="lg:col-span-2 shadow-sm border-outline-variant/50 bg-surface-container-lowest">
           <CardHeader>
             <CardTitle className="text-lg">Dados Principais</CardTitle>
           </CardHeader>
@@ -331,7 +331,7 @@ export default function DetalhePrestacao() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/50 bg-muted/10 print:bg-white print:border">
+        <Card className="shadow-sm border-outline-variant/50 bg-surface-container-low print:bg-white print:border">
           <CardHeader>
             <CardTitle className="text-lg">Resumo Financeiro</CardTitle>
           </CardHeader>
@@ -371,7 +371,7 @@ export default function DetalhePrestacao() {
                   (0).toLocaleString('pt-BR', { style: 'currency', currency })}
               </span>
             </div>
-            <div className="bg-background rounded-md p-3 text-center border mt-2">
+            <div className="bg-surface-container-lowest rounded-md p-3 text-center border border-outline-variant mt-2">
               <span className="text-sm font-medium uppercase tracking-wide">
                 {prestacao.saldo > 0
                   ? 'A pagar ao colaborador'
@@ -393,7 +393,7 @@ export default function DetalhePrestacao() {
         </TabsList>
 
         <TabsContent value="despesas">
-          <Card>
+          <Card className="bg-surface-container-lowest border-outline-variant">
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
@@ -421,7 +421,7 @@ export default function DetalhePrestacao() {
                             {comp ? (
                               <button
                                 onClick={() => setViewerUrl(pb.files.getURL(comp, comp.arquivo))}
-                                className="w-10 h-10 rounded border overflow-hidden hover:opacity-80 transition flex items-center justify-center bg-muted"
+                                className="w-10 h-10 rounded border border-outline-variant overflow-hidden hover:opacity-80 transition flex items-center justify-center bg-surface-container"
                               >
                                 {comp.arquivo.endsWith('.pdf') ? (
                                   <FileText className="w-5 h-5 text-muted-foreground" />
@@ -434,7 +434,7 @@ export default function DetalhePrestacao() {
                                 )}
                               </button>
                             ) : (
-                              <div className="w-10 h-10 rounded border flex items-center justify-center bg-muted/30">
+                              <div className="w-10 h-10 rounded border border-outline-variant flex items-center justify-center bg-surface-container-low">
                                 <ImageIcon className="w-4 h-4 text-muted/50" />
                               </div>
                             )}
@@ -463,7 +463,7 @@ export default function DetalhePrestacao() {
         </TabsContent>
 
         <TabsContent value="adiantamentos">
-          <Card>
+          <Card className="bg-surface-container-lowest border-outline-variant">
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
@@ -506,10 +506,10 @@ export default function DetalhePrestacao() {
             {anexos.map((a) => (
               <Card
                 key={a.id}
-                className="overflow-hidden cursor-pointer hover:border-primary transition"
+                className="overflow-hidden cursor-pointer hover:border-primary transition bg-surface-container-lowest border-outline-variant"
                 onClick={() => setViewerUrl(pb.files.getURL(a, a.arquivo))}
               >
-                <div className="aspect-square bg-muted flex items-center justify-center p-4">
+                <div className="aspect-square bg-surface-container-low flex items-center justify-center p-4">
                   {a.arquivo.endsWith('.pdf') ? (
                     <FileText className="w-12 h-12 text-muted-foreground" />
                   ) : (
@@ -532,7 +532,7 @@ export default function DetalhePrestacao() {
         </TabsContent>
 
         <TabsContent value="workflow">
-          <Card>
+          <Card className="bg-surface-container-lowest border-outline-variant">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <History className="w-5 h-5" /> Linha do Tempo
@@ -544,7 +544,7 @@ export default function DetalhePrestacao() {
                   Nenhum histórico de aprovação disponível.
                 </div>
               ) : (
-                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
+                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant before:to-transparent">
                   {workflowSteps.map((step, idx) => (
                     <div
                       key={step.id}
@@ -552,7 +552,7 @@ export default function DetalhePrestacao() {
                     >
                       <div
                         className={cn(
-                          'flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2',
+                          'flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-surface-container text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2',
                           step.status === 'aprovado'
                             ? 'bg-primary text-primary-foreground'
                             : step.status === 'rejeitado'
@@ -568,7 +568,7 @@ export default function DetalhePrestacao() {
                           step.ordem
                         )}
                       </div>
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border bg-background shadow-sm">
+                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border border-outline-variant bg-surface-container-lowest shadow-sm">
                         <div className="flex items-center justify-between mb-1">
                           <h4 className="font-semibold text-sm capitalize">
                             {step.expand?.etapa_id?.tipo_aprovador.replace('_', ' ')}
@@ -586,7 +586,7 @@ export default function DetalhePrestacao() {
                           <p className="text-xs mt-2">Aprovador: {step.expand.aprovador_id.name}</p>
                         )}
                         {step.comentario && (
-                          <p className="text-sm mt-2 p-2 bg-muted rounded italic">
+                          <p className="text-sm mt-2 p-2 bg-surface-container rounded italic">
                             "{step.comentario}"
                           </p>
                         )}

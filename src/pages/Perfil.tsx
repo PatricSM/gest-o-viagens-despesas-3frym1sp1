@@ -146,7 +146,7 @@ export default function Perfil() {
         </div>
 
         <Tabs defaultValue="pessoal" className="space-y-4">
-          <TabsList className="bg-muted border border-border/40 w-full justify-start h-auto p-1 flex-wrap">
+          <TabsList className="bg-surface-container-low border border-outline-variant/40 w-full justify-start h-auto p-1 flex-wrap">
             <TabsTrigger value="pessoal" className="gap-2">
               <User className="w-4 h-4" /> Dados Pessoais
             </TabsTrigger>
@@ -165,7 +165,7 @@ export default function Perfil() {
           </TabsList>
 
           <TabsContent value="pessoal">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Informações Pessoais</CardTitle>
                 <CardDescription>
@@ -231,7 +231,7 @@ export default function Perfil() {
           </TabsContent>
 
           <TabsContent value="banco">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Dados Bancários</CardTitle>
                 <CardDescription>
@@ -279,7 +279,7 @@ export default function Perfil() {
           </TabsContent>
 
           <TabsContent value="notificacoes">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Preferências de Notificação</CardTitle>
                 <CardDescription>
@@ -287,7 +287,7 @@ export default function Perfil() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between space-x-4 border rounded-lg p-4 bg-muted/20">
+                <div className="flex items-center justify-between space-x-4 border border-outline-variant rounded-lg p-4 bg-surface-container-low">
                   <div className="flex-1 space-y-1">
                     <p className="font-medium text-sm">Notificações no App</p>
                     <p className="text-sm text-muted-foreground">
@@ -296,7 +296,7 @@ export default function Perfil() {
                   </div>
                   <Switch checked={prefInApp} onCheckedChange={setPrefInApp} />
                 </div>
-                <div className="flex items-center justify-between space-x-4 border rounded-lg p-4 bg-muted/20">
+                <div className="flex items-center justify-between space-x-4 border border-outline-variant rounded-lg p-4 bg-surface-container-low">
                   <div className="flex-1 space-y-1">
                     <p className="font-medium text-sm">E-mails</p>
                     <p className="text-sm text-muted-foreground">
@@ -305,7 +305,7 @@ export default function Perfil() {
                   </div>
                   <Switch checked={prefEmail} onCheckedChange={setPrefEmail} />
                 </div>
-                <div className="flex items-center justify-between space-x-4 border rounded-lg p-4 bg-muted/20">
+                <div className="flex items-center justify-between space-x-4 border border-outline-variant rounded-lg p-4 bg-surface-container-low">
                   <div className="flex-1 space-y-1">
                     <p className="font-medium text-sm">Notificações Push / Celular</p>
                     <p className="text-sm text-muted-foreground">
@@ -325,7 +325,7 @@ export default function Perfil() {
 
           <TabsContent value="seguranca">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-surface-container-lowest border-outline-variant">
                 <CardHeader>
                   <CardTitle>Alterar Senha</CardTitle>
                   <CardDescription>Atualize sua senha de acesso regularmente.</CardDescription>
@@ -364,7 +364,7 @@ export default function Perfil() {
               </Card>
 
               <div className="space-y-6">
-                <Card>
+                <Card className="bg-surface-container-lowest border-outline-variant">
                   <CardHeader>
                     <CardTitle>Autenticação em Dois Fatores (2FA)</CardTitle>
                     <CardDescription>
@@ -378,7 +378,7 @@ export default function Perfil() {
                         <p className="font-medium text-green-700">2FA Ativado</p>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center p-4 border rounded-md bg-muted/50 border-dashed">
+                      <div className="flex flex-col items-center p-4 border rounded-md bg-surface-container border-dashed border-outline-variant">
                         <QrCode className="h-8 w-8 text-muted-foreground mb-2" />
                         <p className="text-sm text-center text-muted-foreground">
                           Desativado no momento. Escaneie um QR code para habilitar.
@@ -397,18 +397,18 @@ export default function Perfil() {
                   </CardFooter>
                 </Card>
 
-                <Card>
+                <Card className="bg-surface-container-lowest border-outline-variant">
                   <CardHeader>
                     <CardTitle>Sessões Ativas</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center justify-between p-3 border border-outline-variant rounded-lg">
                       <div>
                         <p className="font-medium text-sm">Navegador Atual (MacOS / Chrome)</p>
                         <p className="text-xs text-green-600 mt-0.5">Ativa agora • São Paulo, BR</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
+                    <div className="flex items-center justify-between p-3 border border-outline-variant rounded-lg bg-surface-container-low">
                       <div>
                         <p className="font-medium text-sm">Dispositivo Móvel (iOS / Safari)</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
@@ -430,7 +430,7 @@ export default function Perfil() {
           </TabsContent>
 
           <TabsContent value="lgpd">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Privacidade e Exportação de Dados (LGPD)</CardTitle>
                 <CardDescription>
@@ -439,7 +439,7 @@ export default function Perfil() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 border rounded-lg bg-muted/30">
+                <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-low">
                   <h4 className="font-medium text-sm">O que será exportado?</h4>
                   <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside ml-4">
                     <li>Dados cadastrais e bancários</li>

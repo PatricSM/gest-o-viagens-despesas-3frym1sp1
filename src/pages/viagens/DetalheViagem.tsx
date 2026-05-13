@@ -120,7 +120,7 @@ export default function DetalheViagem() {
       </div>
 
       <Tabs defaultValue="resumo" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-12 bg-muted/50 p-1 mb-6">
+        <TabsList className="grid w-full grid-cols-5 h-12 bg-surface-container p-1 mb-6">
           <TabsTrigger value="resumo" className="data-[state=active]:bg-background">
             Resumo
           </TabsTrigger>
@@ -139,10 +139,12 @@ export default function DetalheViagem() {
         </TabsList>
 
         <TabsContent value="resumo" className="space-y-6 mt-0">
-          <Card className="p-6 shadow-sm border-border/40">
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">Motivo e Classificação</h3>
+          <Card className="p-6 shadow-sm border-outline-variant/40 bg-surface-container-lowest">
+            <h3 className="text-lg font-semibold mb-4 border-b border-outline-variant pb-2">
+              Motivo e Classificação
+            </h3>
             <p className="text-body-md text-foreground">{v.motivo}</p>
-            <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-border/40">
+            <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-outline-variant/40">
               <div>
                 <p className="text-xs text-muted-foreground uppercase font-semibold">
                   Centro de Custo
@@ -167,7 +169,7 @@ export default function DetalheViagem() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="p-6 shadow-sm border-border/40">
+            <Card className="p-6 shadow-sm border-outline-variant/40 bg-surface-container-lowest">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-muted-foreground" /> Trechos
               </h3>
@@ -176,7 +178,10 @@ export default function DetalheViagem() {
                   <p className="text-sm text-muted-foreground">Nenhum trecho.</p>
                 ) : (
                   trechos.map((t: any) => (
-                    <div key={t.id} className="flex flex-col gap-1 p-3 bg-muted/30 rounded-lg">
+                    <div
+                      key={t.id}
+                      className="flex flex-col gap-1 p-3 bg-surface-container-low rounded-lg"
+                    >
                       <div className="flex justify-between font-medium text-sm">
                         <span>{t.origem}</span>
                         <span>{t.destino}</span>
@@ -190,7 +195,7 @@ export default function DetalheViagem() {
               </div>
             </Card>
 
-            <Card className="p-6 shadow-sm border-border/40">
+            <Card className="p-6 shadow-sm border-outline-variant/40 bg-surface-container-lowest">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-muted-foreground" /> Estimativas
               </h3>
@@ -201,7 +206,7 @@ export default function DetalheViagem() {
                   estimativas.map((e: any) => (
                     <div
                       key={e.id}
-                      className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0"
+                      className="flex justify-between items-center text-sm border-b border-outline-variant pb-2 last:border-0 last:pb-0"
                     >
                       <div>
                         <p className="font-medium capitalize">{e.tipo}</p>
@@ -219,7 +224,7 @@ export default function DetalheViagem() {
         </TabsContent>
 
         <TabsContent value="aprovacao" className="mt-0">
-          <Card className="p-6 shadow-sm">
+          <Card className="p-6 shadow-sm bg-surface-container-lowest border-outline-variant">
             {workflowSteps.length === 0 ? (
               <p className="text-muted-foreground py-8 text-center">
                 Nenhum fluxo de aprovação iniciado.
@@ -252,19 +257,19 @@ export default function DetalheViagem() {
         </TabsContent>
 
         <TabsContent value="despesas">
-          <Card className="p-12 text-center text-muted-foreground">
+          <Card className="p-12 text-center text-muted-foreground bg-surface-container-lowest border-outline-variant">
             <Receipt className="w-8 h-8 mx-auto mb-3 opacity-50" />
             Nenhuma despesa vinculada.
           </Card>
         </TabsContent>
         <TabsContent value="adiantamentos">
-          <Card className="p-12 text-center text-muted-foreground">
+          <Card className="p-12 text-center text-muted-foreground bg-surface-container-lowest border-outline-variant">
             <Wallet className="w-8 h-8 mx-auto mb-3 opacity-50" />
             Nenhum adiantamento vinculado.
           </Card>
         </TabsContent>
         <TabsContent value="prestacao">
-          <Card className="p-12 text-center text-muted-foreground">
+          <Card className="p-12 text-center text-muted-foreground bg-surface-container-lowest border-outline-variant">
             <FileText className="w-8 h-8 mx-auto mb-3 opacity-50" />
             Nenhuma prestação de contas criada.
           </Card>

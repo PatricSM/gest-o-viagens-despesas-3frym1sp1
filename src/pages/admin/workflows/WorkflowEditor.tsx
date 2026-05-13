@@ -61,7 +61,7 @@ function SortableStageCard({
         {...attributes}
         {...listeners}
         className={cn(
-          'min-w-[280px] transition-all duration-300 relative group outline-none',
+          'min-w-[280px] transition-all duration-300 relative group outline-none bg-surface-container-lowest border-outline-variant',
           isHighlighted && 'ring-2 ring-primary border-primary scale-105 shadow-xl',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         )}
@@ -70,7 +70,7 @@ function SortableStageCard({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <GripVertical className="w-5 h-5 text-muted-foreground opacity-40 group-hover:opacity-100 transition-opacity" />
-              <Badge className="bg-muted text-foreground">Etapa {idx + 1}</Badge>
+              <Badge className="bg-surface-container text-foreground">Etapa {idx + 1}</Badge>
             </div>
             {etapa.paralela && <Badge variant="secondary">Paralela</Badge>}
           </div>
@@ -195,7 +195,7 @@ export default function WorkflowEditor({
         </div>
       </div>
 
-      <Card className="p-4 flex items-center gap-4 border-none shadow-elevation">
+      <Card className="p-4 flex items-center gap-4 border-none shadow-elevation bg-surface-container-lowest">
         <Input
           className="max-w-sm font-medium"
           value={nome}
@@ -204,7 +204,7 @@ export default function WorkflowEditor({
         />
       </Card>
 
-      <div className="bg-secondary/10 p-8 rounded-xl border border-dashed flex gap-6 overflow-x-auto min-h-[350px] items-center">
+      <div className="bg-surface-container-low p-8 rounded-xl border border-outline-variant border-dashed flex gap-6 overflow-x-auto min-h-[350px] items-center">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={etapas.map((e) => e.id)} strategy={horizontalListSortingStrategy}>
             {etapas.map((etapa, idx) => {

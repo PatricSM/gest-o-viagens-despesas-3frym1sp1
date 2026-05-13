@@ -149,14 +149,14 @@ export default function PoliticasList() {
         </div>
 
         {!active ? (
-          <Card className="border-dashed">
+          <Card className="border-dashed border-outline-variant bg-surface-container-lowest">
             <CardContent className="py-12 text-center text-muted-foreground">
               Nenhuma política ativa. Crie uma nova versão para começar.
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-none shadow-elevation">
-            <div className="px-6 py-4 border-b flex justify-between items-center bg-secondary/10">
+          <Card className="border-none shadow-elevation bg-surface-container-lowest">
+            <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-lg">Versão {active.versao}</span>
                 <Badge

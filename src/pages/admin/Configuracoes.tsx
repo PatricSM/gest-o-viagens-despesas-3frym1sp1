@@ -133,7 +133,7 @@ export default function Configuracoes() {
         </div>
 
         <Tabs defaultValue="dados" className="space-y-4">
-          <TabsList className="bg-muted border border-border/40 w-full justify-start h-auto p-1 flex-wrap">
+          <TabsList className="bg-surface-container-low border border-outline-variant/40 w-full justify-start h-auto p-1 flex-wrap">
             <TabsTrigger value="dados" className="gap-2">
               <Building2 className="w-4 h-4" /> Dados Cadastrais
             </TabsTrigger>
@@ -152,7 +152,7 @@ export default function Configuracoes() {
           </TabsList>
 
           <TabsContent value="dados">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Dados da Empresa</CardTitle>
               </CardHeader>
@@ -220,7 +220,7 @@ export default function Configuracoes() {
           </TabsContent>
 
           <TabsContent value="marca">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Identidade Visual</CardTitle>
               </CardHeader>
@@ -279,7 +279,7 @@ export default function Configuracoes() {
           </TabsContent>
 
           <TabsContent value="local">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Regionalização</CardTitle>
               </CardHeader>
@@ -344,7 +344,7 @@ export default function Configuracoes() {
           </TabsContent>
 
           <TabsContent value="smtp">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Servidor de E-mail (SMTP)</CardTitle>
                 <CardDescription>
@@ -408,7 +408,7 @@ export default function Configuracoes() {
           </TabsContent>
 
           <TabsContent value="lgpd">
-            <Card>
+            <Card className="bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle>Políticas, Retenção e LGPD</CardTitle>
                 <CardDescription>

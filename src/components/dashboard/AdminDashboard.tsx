@@ -80,7 +80,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
             <Users className="w-4 h-4 text-blue-500" />
@@ -95,7 +95,7 @@ export function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Gasto Mensal Total</CardTitle>
             <Settings className="w-4 h-4 text-purple-500" />
@@ -104,7 +104,7 @@ export function AdminDashboard() {
             <div className="text-2xl font-bold">R$ 158K</div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Workflows Ativos</CardTitle>
             <Workflow className="w-4 h-4 text-orange-500" />
@@ -117,7 +117,7 @@ export function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Política Vigente</CardTitle>
             <FileLock2 className="w-4 h-4 text-green-500" />
@@ -133,7 +133,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="col-span-2 shadow-sm">
+        <Card className="col-span-2 shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Gasto Mensal por Departamento</CardTitle>
             <CardDescription>Comparativo global de despesas no último mês</CardDescription>
@@ -156,13 +156,13 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Health Check</CardTitle>
             <CardDescription>Status das configurações base</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-background">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-outline-variant bg-surface-container-lowest">
               <div className="flex items-center gap-3">
                 {health.workflowsOk ? (
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -176,7 +176,7 @@ export function AdminDashboard() {
               </span>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-background">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-outline-variant bg-surface-container-lowest">
               <div className="flex items-center gap-3">
                 {health.politicaOk ? (
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -190,7 +190,7 @@ export function AdminDashboard() {
               </span>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-background">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-outline-variant bg-surface-container-lowest">
               <div className="flex items-center gap-3">
                 {health.smtpOk ? (
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -204,7 +204,7 @@ export function AdminDashboard() {
               </span>
             </div>
 
-            <div className="mt-6 pt-6 border-t space-y-3">
+            <div className="mt-6 pt-6 border-t border-outline-variant space-y-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Top 3 Categorias
               </h4>

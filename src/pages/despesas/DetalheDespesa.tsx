@@ -109,7 +109,7 @@ export default function DetalheDespesa() {
       <PolicyViolationAlert violations={despesa.politica_violacoes} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="shadow-sm">
+          <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
             <CardContent className="p-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
@@ -143,7 +143,9 @@ export default function DetalheDespesa() {
                 {despesa.descricao && (
                   <div className="col-span-2">
                     <p className="text-sm font-medium text-muted-foreground mb-1">Descrição</p>
-                    <p className="text-base bg-muted/30 p-3 rounded-md">{despesa.descricao}</p>
+                    <p className="text-base bg-surface-container-low p-3 rounded-md">
+                      {despesa.descricao}
+                    </p>
                   </div>
                 )}
                 {despesa.modo_km && (
@@ -173,7 +175,7 @@ export default function DetalheDespesa() {
           </Card>
 
           {steps.length > 0 && (
-            <Card className="shadow-sm">
+            <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-primary" /> Fluxo de Aprovação
@@ -204,7 +206,7 @@ export default function DetalheDespesa() {
             </Card>
           )}
 
-          <Card className="shadow-sm">
+          <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <History className="w-5 h-5 text-muted-foreground" /> Histórico de Alterações
@@ -217,7 +219,10 @@ export default function DetalheDespesa() {
                     <p className="text-sm text-muted-foreground">Nenhum registro encontrado.</p>
                   )}
                   {auditLog.map((log) => (
-                    <div key={log.id} className="text-sm pb-3 border-b last:border-0 last:pb-0">
+                    <div
+                      key={log.id}
+                      className="text-sm pb-3 border-b border-outline-variant last:border-0 last:pb-0"
+                    >
                       <div className="flex justify-between mb-1">
                         <span className="font-medium">
                           {log.expand?.user_id?.name || 'Sistema'}
@@ -239,13 +244,13 @@ export default function DetalheDespesa() {
         </div>
 
         <div className="lg:col-span-1">
-          <Card className="shadow-sm sticky top-6">
+          <Card className="shadow-sm sticky top-6 bg-surface-container-lowest border-outline-variant">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <FileText className="w-5 h-5 text-muted-foreground" /> Comprovante
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 border-t">
+            <CardContent className="p-0 border-t border-outline-variant">
               <ReceiptViewer url={comprovanteUrl} isImage={isImage} />
             </CardContent>
           </Card>

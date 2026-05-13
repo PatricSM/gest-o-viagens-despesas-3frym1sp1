@@ -128,7 +128,7 @@ export function TravelerDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Viagens Ativas</CardTitle>
             <Plane className="w-4 h-4 text-blue-500" />
@@ -141,7 +141,7 @@ export function TravelerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Próximas Viagens</CardTitle>
             <Clock className="w-4 h-4 text-orange-500" />
@@ -154,7 +154,7 @@ export function TravelerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Despesas Pendentes</CardTitle>
             <Receipt className="w-4 h-4 text-red-500" />
@@ -167,7 +167,7 @@ export function TravelerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Relatórios em Aprovação</CardTitle>
             <FileText className="w-4 h-4 text-yellow-500" />
@@ -198,7 +198,7 @@ export function TravelerDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-2 shadow-sm">
+        <Card className="col-span-2 shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Ações Rápidas</CardTitle>
             <CardDescription>O que você precisa fazer hoje?</CardDescription>
@@ -247,7 +247,7 @@ export function TravelerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Linha do Tempo</CardTitle>
             <CardDescription>Suas atividades recentes</CardDescription>
@@ -256,7 +256,7 @@ export function TravelerDashboard() {
             <div className="space-y-6">
               {mockTimeline.map((item) => (
                 <div key={item.id} className="flex gap-4 items-start">
-                  <div className="mt-0.5 bg-muted p-2 rounded-full shrink-0">
+                  <div className="mt-0.5 bg-surface-container-low p-2 rounded-full shrink-0">
                     <item.icon className={`w-4 h-4 ${item.color}`} />
                   </div>
                   <div>

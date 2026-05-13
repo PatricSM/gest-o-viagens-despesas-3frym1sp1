@@ -83,7 +83,7 @@ export function ManagerDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm border-orange-100 dark:border-orange-900/50">
+        <Card className="shadow-sm border-orange-100 dark:border-orange-900/50 bg-surface-container-lowest">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Aprovações Pendentes</CardTitle>
             <CheckSquare className="w-4 h-4 text-orange-500" />
@@ -105,7 +105,7 @@ export function ManagerDashboard() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Gastos da Equipe (Mês)</CardTitle>
             <Users className="w-4 h-4 text-blue-500" />
@@ -118,7 +118,7 @@ export function ManagerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Maior Despesa Ativa</CardTitle>
             <TrendingUp className="w-4 h-4 text-red-500" />
@@ -131,7 +131,7 @@ export function ManagerDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Tempo Médio Aprovação</CardTitle>
             <Clock className="w-4 h-4 text-green-500" />
@@ -147,7 +147,7 @@ export function ManagerDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="col-span-2 shadow-sm">
+        <Card className="col-span-2 shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Gastos da Equipe (Últimos 6 meses)</CardTitle>
             <CardDescription>Evolução de despesas aprovadas no período</CardDescription>
@@ -177,7 +177,7 @@ export function ManagerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Alertas da Equipe</CardTitle>
             <CardDescription>Atenção requerida</CardDescription>

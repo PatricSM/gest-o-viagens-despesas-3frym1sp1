@@ -80,7 +80,7 @@ export function FinanceDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Relatórios p/ Aprovar</CardTitle>
             <FileText className="w-4 h-4 text-blue-500" />
@@ -93,7 +93,7 @@ export function FinanceDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Reembolsos a Processar</CardTitle>
             <CreditCard className="w-4 h-4 text-purple-500" />
@@ -106,7 +106,7 @@ export function FinanceDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Adiantamentos em Aberto</CardTitle>
             <Wallet className="w-4 h-4 text-orange-500" />
@@ -119,7 +119,7 @@ export function FinanceDashboard() {
             )}
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Gasto Mensal (vs. Ant)</CardTitle>
             <TrendingDown className="w-4 h-4 text-green-500" />
@@ -132,7 +132,7 @@ export function FinanceDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="col-span-1 shadow-sm">
+        <Card className="col-span-1 shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Compliance & Alertas</CardTitle>
             <CardDescription>Despesas que requerem atenção</CardDescription>
@@ -156,7 +156,7 @@ export function FinanceDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-2 shadow-sm">
+        <Card className="col-span-2 shadow-sm bg-surface-container-lowest border-outline-variant">
           <CardHeader>
             <CardTitle>Distribuição de Despesas</CardTitle>
             <CardDescription>Gasto por categoria neste mês</CardDescription>

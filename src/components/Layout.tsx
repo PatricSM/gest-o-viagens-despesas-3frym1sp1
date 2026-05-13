@@ -219,8 +219,8 @@ export default function Layout() {
 
   return (
     <SidebarProvider>
-      <Sidebar className="bg-surface-container-low border-r border-border/40">
-        <SidebarHeader className="h-16 px-4 flex items-center border-b border-border/40 shrink-0">
+      <Sidebar className="bg-surface-container-low border-r border-outline-variant/40">
+        <SidebarHeader className="h-16 px-4 flex items-center border-b border-outline-variant/40 shrink-0">
           <div className="flex items-center gap-2 text-primary font-bold text-lg">
             {currentEmpresa?.logo ? (
               <img
@@ -268,7 +268,7 @@ export default function Layout() {
       </Sidebar>
 
       <SidebarInset className="bg-background flex flex-col h-screen">
-        <header className="h-16 flex items-center justify-between px-4 lg:px-8 bg-background border-b border-border/40 shrink-0">
+        <header className="h-16 flex items-center justify-between px-4 lg:px-8 bg-background border-b border-outline-variant/40 shrink-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger />
             <div className="hidden md:flex items-center text-sm text-muted-foreground">
@@ -284,7 +284,7 @@ export default function Layout() {
               }}
             >
               <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
-              <div className="flex h-9 w-64 items-center rounded-md border border-input bg-muted/50 px-3 py-1 text-sm shadow-sm text-muted-foreground">
+              <div className="flex h-9 w-64 items-center rounded-md border border-input bg-surface-container px-3 py-1 text-sm shadow-sm text-muted-foreground">
                 <span className="pl-6">Busca global (Cmd+K)</span>
               </div>
             </div>
@@ -324,7 +324,7 @@ export default function Layout() {
                       <div
                         key={n.id}
                         className={cn(
-                          'p-3 border-b text-sm cursor-pointer hover:bg-muted/50 transition-colors',
+                          'p-3 border-b border-outline-variant text-sm cursor-pointer hover:bg-surface-container transition-colors',
                           !n.lida && 'bg-primary/5',
                         )}
                         onClick={() => {
@@ -405,7 +405,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto bg-muted/20 p-4 lg:p-8">
+        <main className="flex-1 overflow-auto bg-surface p-4 lg:p-8">
           <Outlet />
         </main>
       </SidebarInset>

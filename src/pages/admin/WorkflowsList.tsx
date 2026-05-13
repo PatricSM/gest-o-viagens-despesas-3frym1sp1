@@ -86,7 +86,7 @@ export default function WorkflowsList() {
           </div>
         </div>
 
-        <Card className="border-none shadow-elevation">
+        <Card className="border-none shadow-elevation bg-surface-container-lowest">
           <Tabs value={tipo} onValueChange={setTipo} className="w-full">
             <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12 px-6">
               <TabsTrigger
