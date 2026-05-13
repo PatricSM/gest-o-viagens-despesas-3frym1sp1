@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, ArrowRight, ArrowLeft, Save, Copy } from 'lucide-react'
+import { Plus, ArrowRight, ArrowLeft, Save, Copy, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,9 +8,101 @@ import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
 import * as adminService from '@/services/admin'
 import { cn } from '@/lib/utils'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 import StageModal from './StageModal'
 import SimulatorModal from './SimulatorModal'
+
+function SortableStageCard({
+  etapa,
+  idx,
+  total,
+  isHighlighted,
+  workflowId,
+  loadData,
+}: {
+  etapa: any
+  idx: number
+  total: number
+  isHighlighted: boolean
+  workflowId: string
+  loadData: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: etapa.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-6 z-10 relative">
+      <Card
+        {...attributes}
+        {...listeners}
+        className={cn(
+          'min-w-[280px] transition-all duration-300 relative group outline-none',
+          isHighlighted && 'ring-2 ring-primary border-primary scale-105 shadow-xl',
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
+        )}
+      >
+        <CardContent className="p-5 flex flex-col gap-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <GripVertical className="w-5 h-5 text-muted-foreground opacity-40 group-hover:opacity-100 transition-opacity" />
+              <Badge className="bg-muted text-foreground">Etapa {idx + 1}</Badge>
+            </div>
+            {etapa.paralela && <Badge variant="secondary">Paralela</Badge>}
+          </div>
+          <div className="font-semibold text-lg capitalize">
+            {etapa.tipo_aprovador.replace('_', ' ')}
+          </div>
+          {etapa.cargo_alvo && (
+            <div className="text-sm text-muted-foreground">Cargo: {etapa.cargo_alvo}</div>
+          )}
+          {etapa.expand?.custom_user_id?.name && (
+            <div className="text-sm text-muted-foreground">
+              Usuário: {etapa.expand.custom_user_id.name}
+            </div>
+          )}
+          <div className="text-xs font-medium bg-primary/5 text-primary p-2 rounded-md mt-2">
+            R$ {etapa.alcada_valor_min || 0} a{' '}
+            {etapa.alcada_valor_max ? `R$ ${etapa.alcada_valor_max}` : 'Ilimitado'}
+          </div>
+          <div onPointerDown={(e) => e.stopPropagation()}>
+            <StageModal
+              etapa={etapa}
+              workflowId={workflowId}
+              onSave={loadData}
+              onDelete={loadData}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      {idx < total - 1 && <ArrowRight className="text-muted-foreground w-6 h-6 shrink-0" />}
+    </div>
+  )
+}
 
 export default function WorkflowEditor({
   workflow,
@@ -25,10 +117,43 @@ export default function WorkflowEditor({
   const { currentEmpresa, user } = useAuth()
   const { toast } = useToast()
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
+
   const loadData = async () => setEtapas(await adminService.getEtapas(workflow.id))
   useEffect(() => {
     loadData()
   }, [workflow.id])
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = etapas.findIndex((e) => e.id === active.id)
+      const newIndex = etapas.findIndex((e) => e.id === over.id)
+
+      const newEtapas = arrayMove(etapas, oldIndex, newIndex)
+      setEtapas(newEtapas)
+
+      for (let i = 0; i < newEtapas.length; i++) {
+        await adminService.updateEtapa(newEtapas[i].id, { ordem: i + 1 })
+      }
+    }
+  }
 
   const handleSave = async () => {
     await adminService.updateWorkflow(workflow.id, { nome })
@@ -44,13 +169,6 @@ export default function WorkflowEditor({
     await adminService.cloneWorkflow(workflow.id, currentEmpresa.empresa_id, user.id)
     toast({ title: 'Nova versão criada' })
     onBack()
-  }
-
-  const moveCard = (from: number, to: number) => {
-    const arr = [...etapas]
-    const [item] = arr.splice(from, 1)
-    arr.splice(to, 0, item)
-    setEtapas(arr)
   }
 
   return (
@@ -87,58 +205,28 @@ export default function WorkflowEditor({
       </Card>
 
       <div className="bg-secondary/10 p-8 rounded-xl border border-dashed flex gap-6 overflow-x-auto min-h-[350px] items-center">
-        {etapas.map((etapa, idx) => {
-          const isHighlighted =
-            simulatedValue !== null &&
-            simulatedValue >= (etapa.alcada_valor_min || 0) &&
-            (!etapa.alcada_valor_max || simulatedValue <= etapa.alcada_valor_max)
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={etapas.map((e) => e.id)} strategy={horizontalListSortingStrategy}>
+            {etapas.map((etapa, idx) => {
+              const isHighlighted =
+                simulatedValue !== null &&
+                simulatedValue >= (etapa.alcada_valor_min || 0) &&
+                (!etapa.alcada_valor_max || simulatedValue <= etapa.alcada_valor_max)
 
-          return (
-            <div className="flex items-center gap-6" key={etapa.id}>
-              <Card
-                draggable
-                onDragStart={(e) => e.dataTransfer.setData('idx', idx.toString())}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => moveCard(parseInt(e.dataTransfer.getData('idx')), idx)}
-                className={cn(
-                  'min-w-[280px] cursor-move transition-all duration-300 relative',
-                  isHighlighted && 'ring-2 ring-primary border-primary scale-105 shadow-xl',
-                )}
-              >
-                <CardContent className="p-5 flex flex-col gap-3">
-                  <div className="flex justify-between items-center">
-                    <Badge className="bg-muted text-foreground">Etapa {idx + 1}</Badge>
-                    {etapa.paralela && <Badge variant="secondary">Paralela</Badge>}
-                  </div>
-                  <div className="font-semibold text-lg capitalize">
-                    {etapa.tipo_aprovador.replace('_', ' ')}
-                  </div>
-                  {etapa.cargo_alvo && (
-                    <div className="text-sm text-muted-foreground">Cargo: {etapa.cargo_alvo}</div>
-                  )}
-                  {etapa.expand?.custom_user_id?.name && (
-                    <div className="text-sm text-muted-foreground">
-                      Usuário: {etapa.expand.custom_user_id.name}
-                    </div>
-                  )}
-                  <div className="text-xs font-medium bg-primary/5 text-primary p-2 rounded-md mt-2">
-                    R$ {etapa.alcada_valor_min || 0} a{' '}
-                    {etapa.alcada_valor_max ? `R$ ${etapa.alcada_valor_max}` : 'Ilimitado'}
-                  </div>
-                  <StageModal
-                    etapa={etapa}
-                    workflowId={workflow.id}
-                    onSave={loadData}
-                    onDelete={loadData}
-                  />
-                </CardContent>
-              </Card>
-              {idx < etapas.length - 1 && (
-                <ArrowRight className="text-muted-foreground w-6 h-6 shrink-0" />
-              )}
-            </div>
-          )
-        })}
+              return (
+                <SortableStageCard
+                  key={etapa.id}
+                  etapa={etapa}
+                  idx={idx}
+                  total={etapas.length}
+                  isHighlighted={isHighlighted}
+                  workflowId={workflow.id}
+                  loadData={loadData}
+                />
+              )
+            })}
+          </SortableContext>
+        </DndContext>
         <div className="shrink-0 flex items-center gap-6">
           {etapas.length > 0 && (
             <ArrowRight className="text-muted-foreground/30 w-6 h-6 shrink-0" />
