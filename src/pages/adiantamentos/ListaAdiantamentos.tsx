@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Plus, Eye, Wallet } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Plus, Eye, Wallet, Filter } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,9 +18,11 @@ import { getAdiantamentos } from '@/services/adiantamentos'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
+import { EmptyState } from '@/components/common/EmptyState'
 
 export default function ListaAdiantamentos() {
   const [items, setItems] = useState<any[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const { currentEmpresa } = useAuth()
   const navigate = useNavigate()
 
@@ -41,6 +43,17 @@ export default function ListaAdiantamentos() {
   useRealtime('adiantamentos', () => {
     loadData()
   })
+
+  const filteredItems = useMemo(() => {
+    if (!searchTerm) return items
+    const term = searchTerm.toLowerCase()
+    return items.filter(
+      (item) =>
+        item.codigo?.toLowerCase().includes(term) ||
+        item.expand?.viagem_id?.codigo?.toLowerCase().includes(term) ||
+        item.expand?.usuario_id?.name?.toLowerCase().includes(term),
+    )
+  }, [items, searchTerm])
 
   return (
     <div className="flex gap-6 h-full animate-fade-in">
@@ -66,8 +79,10 @@ export default function ListaAdiantamentos() {
           <CardContent className="p-0">
             <div className="p-4 border-b flex items-center gap-4 bg-muted/30">
               <Input
-                placeholder="Buscar por código ou justificativa..."
+                placeholder="Buscar por código, viajante ou viagem..."
                 className="max-w-sm bg-background"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <Button variant="outline">Filtros</Button>
             </div>
@@ -84,15 +99,33 @@ export default function ListaAdiantamentos() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {items.length === 0 && (
+                {filteredItems.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      <Wallet className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                      Nenhum adiantamento encontrado.
+                    <TableCell colSpan={7} className="p-0">
+                      {searchTerm ? (
+                        <EmptyState
+                          variant="filter"
+                          icon={Filter}
+                          title="Nenhum adiantamento encontrado"
+                          description="Sua busca não retornou resultados."
+                          secondary={{ label: 'Limpar busca', onClick: () => setSearchTerm('') }}
+                        />
+                      ) : (
+                        <EmptyState
+                          variant="default"
+                          icon={Wallet}
+                          title="Nenhum adiantamento"
+                          description="Você ainda não solicitou nenhum adiantamento."
+                          action={{
+                            label: 'Novo Adiantamento',
+                            onClick: () => navigate('/adiantamentos/novo'),
+                          }}
+                        />
+                      )}
                     </TableCell>
                   </TableRow>
                 )}
-                {items.map((item) => (
+                {filteredItems.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.codigo || '-'}</TableCell>
                     <TableCell className="font-medium text-sm">

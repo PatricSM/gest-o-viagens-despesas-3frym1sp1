@@ -1,33 +1,61 @@
 import { Button } from '@/components/ui/button'
+import { Inbox } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-/**
- * EmptyState Component
- * Displays an empty state with an icon, title, description, and an optional call-to-action button.
- * @param icon - The Lucide icon component to display.
- * @param title - The primary title of the empty state.
- * @param description - The secondary description text.
- * @param action - Optional CTA configuration containing a label and an onClick handler.
- */
+export interface EmptyStateProps {
+  icon?: any
+  title: string
+  description?: string
+  action?: { label: string; onClick: () => void; icon?: any }
+  secondary?: { label: string; onClick: () => void }
+  variant?: 'default' | 'success' | 'filter'
+  className?: string
+}
+
 export function EmptyState({
-  icon: Icon,
+  icon: Icon = Inbox,
   title,
   description,
   action,
-}: {
-  icon: any
-  title: string
-  description: string
-  action?: { label: string; onClick: () => void }
-}) {
+  secondary,
+  variant = 'default',
+  className,
+}: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-300">
-      <Icon className="w-12 h-12 mb-4 opacity-20" />
-      <h3 className="text-lg font-medium text-foreground mb-1">{title}</h3>
-      <p className="text-sm mb-4 max-w-sm">{description}</p>
-      {action && (
-        <Button onClick={action.onClick} variant="outline">
-          {action.label}
-        </Button>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center py-16 px-6 text-center animate-in fade-in duration-300',
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          'w-16 h-16 rounded-full flex items-center justify-center mb-4',
+          variant === 'success' &&
+            'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+          variant === 'filter' &&
+            'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400',
+          variant === 'default' && 'bg-muted text-muted-foreground',
+        )}
+      >
+        <Icon className="w-8 h-8" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+      {description && <p className="text-sm text-muted-foreground mt-1 max-w-md">{description}</p>}
+      {(action || secondary) && (
+        <div className="flex gap-2 mt-6">
+          {secondary && (
+            <Button onClick={secondary.onClick} variant="outline">
+              {secondary.label}
+            </Button>
+          )}
+          {action && (
+            <Button onClick={action.onClick}>
+              {action.icon && <action.icon className="w-4 h-4 mr-2" />}
+              {action.label}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   )

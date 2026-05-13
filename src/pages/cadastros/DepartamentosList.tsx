@@ -22,6 +22,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, Network } from 'lucide-react'
 
 export default function DepartamentosList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -139,6 +141,39 @@ export default function DepartamentosList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="p-0">
+                {search ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhum departamento encontrado"
+                    description="Sua busca não retornou resultados."
+                    secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={Network}
+                    title="Nenhum departamento"
+                    description="Cadastre o primeiro departamento."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Novo Departamento',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id}>
               <TableCell style={{ paddingLeft: `${d.depth * 1.5 + 1}rem` }}>

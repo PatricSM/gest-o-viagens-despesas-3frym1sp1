@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Search, FileText, Filter, X } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -28,6 +28,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/common/EmptyState'
 
 const statusOptions = [
   { value: 'rascunho', label: 'Rascunho' },
@@ -42,6 +43,7 @@ const statusOptions = [
 
 export default function ListaPrestacoes() {
   const { currentEmpresa, userRole, user } = useAuth()
+  const navigate = useNavigate()
   const [prestacoes, setPrestacoes] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [viagens, setViagens] = useState<any[]>([])
@@ -279,9 +281,27 @@ export default function ListaPrestacoes() {
                 ))
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                    <FileText className="h-10 w-10 mx-auto text-muted mb-2" />
-                    Nenhuma prestação de contas encontrada.
+                  <TableCell colSpan={7} className="p-0">
+                    {activeFiltersCount > 0 || search ? (
+                      <EmptyState
+                        variant="filter"
+                        icon={Filter}
+                        title="Nenhuma prestação encontrada"
+                        description="Os filtros atuais não retornaram resultados."
+                        secondary={{ label: 'Limpar filtros', onClick: clearFilters }}
+                      />
+                    ) : (
+                      <EmptyState
+                        variant="default"
+                        icon={FileText}
+                        title="Nenhuma prestação de contas"
+                        description="Você ainda não possui prestações de contas."
+                        action={{
+                          label: 'Nova Prestação',
+                          onClick: () => navigate('/prestacoes/nova'),
+                        }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (

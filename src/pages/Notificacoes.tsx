@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { EmptyState } from '@/components/common/EmptyState'
 
 export default function Notificacoes() {
   const { user, currentEmpresa } = useAuth()
@@ -148,10 +149,31 @@ export default function Notificacoes() {
           </CardHeader>
           <CardContent className="p-0">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
-                <Inbox className="h-12 w-12 mb-3 text-muted-foreground/50" />
-                <p>Nenhuma notificação encontrada.</p>
-              </div>
+              <EmptyState
+                variant={filter !== 'all' || typeFilter !== 'all' ? 'filter' : 'success'}
+                icon={filter !== 'all' || typeFilter !== 'all' ? Search : CheckCheck}
+                title={
+                  filter !== 'all' || typeFilter !== 'all'
+                    ? 'Nenhuma notificação encontrada'
+                    : 'Tudo em dia!'
+                }
+                description={
+                  filter !== 'all' || typeFilter !== 'all'
+                    ? 'Os filtros atuais não retornaram resultados.'
+                    : 'Nenhuma notificação não lida.'
+                }
+                secondary={
+                  filter !== 'all' || typeFilter !== 'all'
+                    ? {
+                        label: 'Limpar filtros',
+                        onClick: () => {
+                          setFilter('all')
+                          setTypeFilter('all')
+                        },
+                      }
+                    : undefined
+                }
+              />
             ) : (
               <div className="divide-y divide-border">
                 {notifications.map((n) => (

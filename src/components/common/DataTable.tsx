@@ -64,8 +64,13 @@ export function DataTable<T = any>({
               ))
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center p-0 h-64">
-                  <EmptyState icon={Inbox} title="Sem resultados" description={emptyMessage} />
+                <TableCell colSpan={columns.length} className="p-0">
+                  <EmptyState
+                    variant="default"
+                    icon={Inbox}
+                    title="Sem resultados"
+                    description={emptyMessage}
+                  />
                 </TableCell>
               </TableRow>
             ) : (

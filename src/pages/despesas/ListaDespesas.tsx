@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Search, Plus, AlertTriangle, Receipt, Copy, Eye, Trash } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Search, Plus, AlertTriangle, Receipt, Copy, Eye, Trash, Filter } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function ListaDespesas() {
   const [despesas, setDespesas] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
   const { currentEmpresa } = useAuth()
   const navigate = useNavigate()
 
@@ -49,6 +50,16 @@ export default function ListaDespesas() {
   useRealtime('despesas', () => {
     loadData()
   })
+
+  const filteredDespesas = useMemo(() => {
+    if (!searchTerm) return despesas
+    const term = searchTerm.toLowerCase()
+    return despesas.filter(
+      (exp) =>
+        exp.descricao?.toLowerCase().includes(term) ||
+        exp.expand?.categoria_id?.nome?.toLowerCase().includes(term),
+    )
+  }, [despesas, searchTerm])
 
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir esta despesa?')) {
@@ -84,7 +95,12 @@ export default function ListaDespesas() {
           <div className="p-4 border-b flex items-center gap-4 bg-muted/30">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar despesas..." className="pl-9 bg-background" />
+              <Input
+                placeholder="Buscar despesas..."
+                className="pl-9 bg-background"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <Button variant="outline">Filtros</Button>
           </div>
@@ -113,18 +129,33 @@ export default function ListaDespesas() {
                     ))}
                   </TableRow>
                 ))
-              ) : despesas.length === 0 ? (
+              ) : filteredDespesas.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center p-0">
-                    <EmptyState
-                      icon={Receipt}
-                      title="Sem Despesas"
-                      description="Nenhuma despesa registrada."
-                    />
+                  <TableCell colSpan={8} className="p-0">
+                    {searchTerm ? (
+                      <EmptyState
+                        variant="filter"
+                        icon={Filter}
+                        title="Nenhuma despesa encontrada"
+                        description="Sua busca não retornou resultados."
+                        secondary={{ label: 'Limpar busca', onClick: () => setSearchTerm('') }}
+                      />
+                    ) : (
+                      <EmptyState
+                        variant="default"
+                        icon={Receipt}
+                        title="Nenhuma despesa"
+                        description="Você ainda não possui despesas cadastradas."
+                        action={{
+                          label: 'Nova Despesa',
+                          onClick: () => navigate('/despesas/nova'),
+                        }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (
-                despesas.map((exp) => {
+                filteredDespesas.map((exp) => {
                   const isForaPolitica =
                     exp.politica_violacoes && Object.keys(exp.politica_violacoes).length > 0
                   const comprovantes = exp.expand?.despesa_comprovantes_via_despesa_id || []

@@ -23,6 +23,8 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { formatCurrency } from '@/lib/formatters'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, Building2 } from 'lucide-react'
 
 export default function CentrosCustoList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -128,6 +130,39 @@ export default function CentrosCustoList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="p-0">
+                {search ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhum centro de custo encontrado"
+                    description="Sua busca não retornou resultados."
+                    secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={Building2}
+                    title="Nenhum centro de custo"
+                    description="Cadastre o primeiro centro de custo."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Novo Centro de Custo',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id} className={!d.active ? 'opacity-50' : ''}>
               <TableCell className="text-data-tabular">{d.codigo}</TableCell>

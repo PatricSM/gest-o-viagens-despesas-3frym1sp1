@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { EmptyState } from '@/components/common/EmptyState'
 
 export default function AuditoriaDuplicadas() {
   const { currentEmpresa, user } = useAuth()
@@ -166,12 +167,13 @@ export default function AuditoriaDuplicadas() {
           </div>
         ) : alertas.length === 0 ? (
           <Card className="border-dashed bg-muted/30">
-            <CardContent className="flex flex-col items-center justify-center h-48 text-center">
-              <CheckCircle className="w-10 h-10 text-emerald-500 mb-4" />
-              <p className="text-lg font-medium text-foreground">Nenhuma duplicidade pendente</p>
-              <p className="text-sm text-muted-foreground">
-                O sistema não encontrou novas despesas suspeitas.
-              </p>
+            <CardContent className="p-0">
+              <EmptyState
+                variant="success"
+                icon={CheckCircle}
+                title="Nenhuma duplicidade pendente"
+                description="O sistema não encontrou novas despesas suspeitas."
+              />
             </CardContent>
           </Card>
         ) : (

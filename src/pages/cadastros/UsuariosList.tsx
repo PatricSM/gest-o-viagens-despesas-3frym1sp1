@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, Users } from 'lucide-react'
 
 export default function UsuariosList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -176,6 +178,45 @@ export default function UsuariosList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="p-0">
+                {search || roleFilter !== 'all' ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhum usuário encontrado"
+                    description="Sua busca não retornou resultados."
+                    secondary={{
+                      label: 'Limpar filtros',
+                      onClick: () => {
+                        setSearch('')
+                        setRoleFilter('all')
+                      },
+                    }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={Users}
+                    title="Nenhum usuário"
+                    description="Cadastre os usuários do sistema."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Novo Usuário',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((u) => (
             <TableRow key={u.id}>
               <TableCell className="font-medium">{u.name}</TableCell>

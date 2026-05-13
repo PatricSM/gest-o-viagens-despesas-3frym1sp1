@@ -22,6 +22,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, MapPin } from 'lucide-react'
 
 export default function FiliaisList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -117,6 +119,39 @@ export default function FiliaisList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="p-0">
+                {search ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhuma filial encontrada"
+                    description="Sua busca não retornou resultados."
+                    secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={MapPin}
+                    title="Nenhuma filial"
+                    description="Cadastre a primeira filial da empresa."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Nova Filial',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id}>
               <TableCell className="text-data-tabular">{d.codigo}</TableCell>

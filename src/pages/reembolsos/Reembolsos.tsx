@@ -22,6 +22,7 @@ import {
   updateReembolsoStatus,
 } from '@/services/reembolsos'
 import { exportRemessaPDF } from '@/lib/pdf-export'
+import { EmptyState } from '@/components/common/EmptyState'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -357,11 +358,29 @@ export default function Reembolsos() {
                   </TableRow>
                 ) : filteredReembolsos.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={isReadOnly ? 7 : 8}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      Nenhum reembolso encontrado.
+                    <TableCell colSpan={isReadOnly ? 7 : 8} className="p-0">
+                      {statusFilter !== 'all' || searchFilter !== '' ? (
+                        <EmptyState
+                          variant="filter"
+                          icon={Search}
+                          title="Nenhum reembolso encontrado"
+                          description="Sua busca não encontrou resultados."
+                          secondary={{
+                            label: 'Limpar filtros',
+                            onClick: () => {
+                              setStatusFilter('all')
+                              setSearchFilter('')
+                            },
+                          }}
+                        />
+                      ) : (
+                        <EmptyState
+                          variant="success"
+                          icon={CheckCircle}
+                          title="Tudo em dia!"
+                          description="Nenhum reembolso pendente."
+                        />
+                      )}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -589,9 +608,12 @@ export default function Reembolsos() {
                 ))}
 
               {reembolsos.filter((r) => r.usuario_id === historyDialog?.userId).length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  Nenhum reembolso encontrado para este colaborador.
-                </div>
+                <EmptyState
+                  variant="default"
+                  icon={History}
+                  title="Nenhum histórico"
+                  description="Este colaborador não possui histórico de reembolsos."
+                />
               )}
             </div>
           </div>

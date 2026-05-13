@@ -31,6 +31,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, FolderKanban } from 'lucide-react'
 
 export default function ProjetosList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -152,6 +154,45 @@ export default function ProjetosList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={7} className="p-0">
+                {search || statusFilter !== 'all' ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhum projeto encontrado"
+                    description="Sua busca não retornou resultados."
+                    secondary={{
+                      label: 'Limpar filtros',
+                      onClick: () => {
+                        setSearch('')
+                        setStatusFilter('all')
+                      },
+                    }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={FolderKanban}
+                    title="Nenhum projeto"
+                    description="Cadastre o primeiro projeto."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Novo Projeto',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id} className={!d.active ? 'opacity-50' : ''}>
               <TableCell className="text-data-tabular">{d.codigo}</TableCell>

@@ -23,6 +23,8 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { formatCurrency, formatDate } from '@/lib/formatters'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, Coins } from 'lucide-react'
 
 export default function MoedasList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -162,6 +164,39 @@ export default function MoedasList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={7} className="p-0">
+                {search ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhuma moeda encontrada"
+                    description="Sua busca não retornou resultados."
+                    secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={Coins}
+                    title="Nenhuma moeda"
+                    description="Cadastre a primeira moeda."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Nova Moeda',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id}>
               <TableCell>

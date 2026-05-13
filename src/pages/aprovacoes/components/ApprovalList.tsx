@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ApprovalItem, isEmAtraso, formatCurrency } from '../types'
+import { EmptyState } from '@/components/common/EmptyState'
+import { CheckCircle } from 'lucide-react'
 
 interface ApprovalListProps {
   items: ApprovalItem[]
@@ -111,9 +113,12 @@ export function ApprovalList({
           </Card>
         ))}
         {items.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum item pendente nesta categoria.
-          </div>
+          <EmptyState
+            variant="success"
+            icon={CheckCircle}
+            title="Tudo em dia!"
+            description="Nenhuma aprovação pendente."
+          />
         )}
       </div>
     )
@@ -210,8 +215,13 @@ export function ApprovalList({
           ))}
           {items.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                Nenhum item pendente nesta categoria.
+              <TableCell colSpan={7} className="p-0">
+                <EmptyState
+                  variant="success"
+                  icon={CheckCircle}
+                  title="Tudo em dia!"
+                  description="Nenhuma aprovação pendente."
+                />
               </TableCell>
             </TableRow>
           )}

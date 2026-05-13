@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Plus, Filter, Download, Eye, Pencil, Trash2, Copy } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  Filter,
+  Download,
+  Eye,
+  Pencil,
+  Trash2,
+  Copy,
+  FilterX,
+  Plane,
+} from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -33,6 +44,7 @@ import { useRealtime } from '@/hooks/use-realtime'
 import pb from '@/lib/pocketbase/client'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/common/EmptyState'
 
 export default function ListaViagens() {
   const [viagens, setViagens] = useState<any[]>([])
@@ -214,8 +226,24 @@ export default function ListaViagens() {
                 ))
               ) : filteredViagens.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                    Nenhuma viagem encontrada.
+                  <TableCell colSpan={6} className="p-0">
+                    {searchTerm ? (
+                      <EmptyState
+                        variant="filter"
+                        icon={FilterX}
+                        title="Nenhuma viagem encontrada"
+                        description="Sua busca não retornou resultados."
+                        secondary={{ label: 'Limpar busca', onClick: () => setSearchTerm('') }}
+                      />
+                    ) : (
+                      <EmptyState
+                        variant="default"
+                        icon={Plane}
+                        title="Nenhuma viagem"
+                        description="Você ainda não possui viagens cadastradas."
+                        action={{ label: 'Nova Viagem', onClick: () => navigate('/viagens/nova') }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (

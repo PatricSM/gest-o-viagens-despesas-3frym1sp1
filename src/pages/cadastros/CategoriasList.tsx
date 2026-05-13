@@ -16,6 +16,8 @@ import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import * as Icons from 'lucide-react'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search } from 'lucide-react'
 
 const toPascal = (str: string) =>
   str
@@ -100,6 +102,37 @@ export default function CategoriasList() {
         )
       }
     >
+      {items.length === 0 && (
+        <div className="w-full">
+          {search ? (
+            <EmptyState
+              variant="filter"
+              icon={Search}
+              title="Nenhuma categoria encontrada"
+              description="Sua busca não retornou resultados."
+              secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+            />
+          ) : (
+            <EmptyState
+              variant="default"
+              icon={Icons.Tags}
+              title="Nenhuma categoria"
+              description="Cadastre sua primeira categoria de despesa."
+              action={
+                !isReadOnly
+                  ? {
+                      label: 'Nova Categoria',
+                      onClick: () => {
+                        setEditing(null)
+                        setOpen(true)
+                      },
+                    }
+                  : undefined
+              }
+            />
+          )}
+        </div>
+      )}
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map((cat) => {
           const IconComp = (Icons as any)[toPascal(cat.icone || 'tags')] || Icons.Tags

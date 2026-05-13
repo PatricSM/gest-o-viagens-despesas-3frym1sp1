@@ -23,6 +23,8 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import useRealtime from '@/hooks/use-realtime'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/common/EmptyState'
+import { Search, Briefcase } from 'lucide-react'
 
 export default function FornecedoresList() {
   const { currentEmpresa, userRole } = useAuth()
@@ -121,6 +123,39 @@ export default function FornecedoresList() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {items.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="p-0">
+                {search ? (
+                  <EmptyState
+                    variant="filter"
+                    icon={Search}
+                    title="Nenhum fornecedor encontrado"
+                    description="Sua busca não retornou resultados."
+                    secondary={{ label: 'Limpar busca', onClick: () => setSearch('') }}
+                  />
+                ) : (
+                  <EmptyState
+                    variant="default"
+                    icon={Briefcase}
+                    title="Nenhum fornecedor"
+                    description="Cadastre o primeiro fornecedor."
+                    action={
+                      !isReadOnly
+                        ? {
+                            label: 'Novo Fornecedor',
+                            onClick: () => {
+                              setEditing(null)
+                              setOpen(true)
+                            },
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
           {items.map((d) => (
             <TableRow key={d.id}>
               <TableCell className="font-medium">
