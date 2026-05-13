@@ -22,11 +22,20 @@ export const RoleGuard = ({ allowed }: { allowed: string[] }) => {
 
   useEffect(() => {
     if (!loading && userRole && !allowed.includes(userRole)) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[RoleGuard] blocked. userRole="${userRole}", allowed=[${allowed.join(', ')}]`,
+      )
       toast({
         title: 'Acesso Restrito',
         description: `Acesso restrito a ${allowed.join(', ')}`,
         variant: 'destructive',
       })
+    } else if (!loading && !userRole) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[RoleGuard] userRole is null/undefined — verifique se o login carregou currentEmpresa + role corretamente (use-auth.tsx loadEmpresas).',
+      )
     }
   }, [loading, userRole, allowed, toast])
 
