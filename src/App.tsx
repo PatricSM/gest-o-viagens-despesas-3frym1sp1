@@ -8,8 +8,10 @@ import { ProtectedRoute, RoleGuard } from './components/Guards'
 import Layout from './components/Layout'
 
 import Login from './pages/auth/Login'
+import SignupEmpresa from './pages/auth/SignupEmpresa'
 import RecoverPassword from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
+import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
 import ListaViagens from './pages/viagens/ListaViagens'
 import NovaViagem from './pages/viagens/NovaViagem'
@@ -56,10 +58,12 @@ const App = () => (
         <Sonner />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/cadastrar-empresa" element={<SignupEmpresa />} />
           <Route path="/recuperar-senha" element={<RecoverPassword />} />
           <Route path="/resetar-senha" element={<ResetPassword />} />
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
