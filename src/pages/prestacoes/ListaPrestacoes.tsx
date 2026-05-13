@@ -9,6 +9,7 @@ import { getPrestacoes, getUsuariosPorEmpresa, getViagensPorEmpresa } from '@/se
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
@@ -342,13 +343,7 @@ export default function ListaPrestacoes() {
                       })}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={
-                          statusOptions.find((o) => o.value === p.status) ? 'secondary' : 'outline'
-                        }
-                      >
-                        {statusOptions.find((o) => o.value === p.status)?.label || p.status}
-                      </Badge>
+                      <StatusBadge status={p.status} />
                     </TableCell>
                     <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                       {p.data_envio ? format(new Date(p.data_envio), 'dd/MM/yyyy') : '-'}

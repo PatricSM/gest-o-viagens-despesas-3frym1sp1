@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
 
 export interface TimelineStep {
   id: string
@@ -32,12 +33,7 @@ export function ApprovalTimeline({ steps, submittedBy, submittedAt }: ApprovalTi
         <div>
           <p className="text-sm font-medium text-foreground">{submittedBy}</p>
           <div className="flex items-center gap-2 mt-1">
-            <Badge
-              variant="default"
-              className="bg-primary text-primary-foreground hover:bg-primary"
-            >
-              Enviado
-            </Badge>
+            <StatusBadge status="enviada" />
             <span className="text-xs text-muted-foreground">
               Enviado para aprovação · há{' '}
               {formatDistanceToNow(new Date(submittedAt), { locale: ptBR })}
@@ -51,39 +47,32 @@ export function ApprovalTimeline({ steps, submittedBy, submittedAt }: ApprovalTi
         let Icon = Clock
         let ringColor = 'ring-zinc-300'
         let fgColor = 'text-zinc-500'
-        let badgeVariant: 'default' | 'destructive' | 'secondary' | 'outline' = 'outline'
-        let badgeText = step.status
 
         switch (step.status) {
           case 'aprovado':
             Icon = CheckCircle2
             ringColor = 'ring-emerald-500'
             fgColor = 'text-emerald-500'
-            badgeVariant = 'default'
             break
           case 'rejeitado':
             Icon = XCircle
             ringColor = 'ring-red-500'
             fgColor = 'text-red-500'
-            badgeVariant = 'destructive'
             break
           case 'devolvido':
             Icon = RotateCcw
             ringColor = 'ring-amber-500'
             fgColor = 'text-amber-500'
-            badgeVariant = 'secondary'
             break
           case 'pendente':
             Icon = Clock
             ringColor = 'ring-primary'
             fgColor = 'text-primary'
-            badgeVariant = 'outline'
             break
           case 'pulado':
             Icon = MinusCircle
             ringColor = 'ring-zinc-300'
             fgColor = 'text-zinc-500'
-            badgeVariant = 'secondary'
             break
         }
 
@@ -112,9 +101,7 @@ export function ApprovalTimeline({ steps, submittedBy, submittedAt }: ApprovalTi
                 </span>
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <Badge variant={badgeVariant} className="capitalize">
-                  {badgeText}
-                </Badge>
+                <StatusBadge status={step.status} />
                 {timeText && <span className="text-xs text-muted-foreground">{timeText}</span>}
               </div>
               {step.comentario && (

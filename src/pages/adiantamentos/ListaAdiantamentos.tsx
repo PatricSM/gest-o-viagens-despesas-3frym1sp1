@@ -155,18 +155,7 @@ export default function ListaAdiantamentos() {
                       {formatCurrency(item.valor)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge
-                        variant="outline"
-                        className={
-                          item.status === 'aprovado' || item.status === 'pago'
-                            ? 'bg-green-100 text-green-700 border-green-200'
-                            : item.status === 'rejeitado' || item.status === 'cancelado'
-                              ? 'bg-red-100 text-red-700 border-red-200'
-                              : 'bg-amber-100 text-amber-700 border-amber-200'
-                        }
-                      >
-                        {item.status.toUpperCase()}
-                      </Badge>
+                      <StatusBadge status={item.status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button

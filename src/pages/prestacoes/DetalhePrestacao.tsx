@@ -34,6 +34,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import {
   Table,
   TableBody,
@@ -44,17 +45,6 @@ import {
 } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-
-const statusMap: Record<string, { label: string; variant: any }> = {
-  rascunho: { label: 'Rascunho', variant: 'secondary' },
-  enviada: { label: 'Enviada', variant: 'default' },
-  em_aprovacao_gestor: { label: 'Aprovação Gestor', variant: 'outline' },
-  em_aprovacao_financeiro: { label: 'Aprovação Fin.', variant: 'outline' },
-  aprovada: { label: 'Aprovada', variant: 'default' },
-  paga: { label: 'Paga', variant: 'default' },
-  rejeitada: { label: 'Rejeitada', variant: 'destructive' },
-  devolvida: { label: 'Devolvida', variant: 'destructive' },
-}
 
 export default function DetalhePrestacao() {
   const { id } = useParams()
@@ -205,9 +195,7 @@ export default function DetalhePrestacao() {
             <div className="text-sm text-muted-foreground flex gap-2 items-center mt-1">
               <span>{prestacao.codigo || '-'}</span>
               <span>•</span>
-              <Badge variant={statusMap[prestacao.status]?.variant || 'secondary'}>
-                {statusMap[prestacao.status]?.label || prestacao.status}
-              </Badge>
+              <StatusBadge status={prestacao.status} />
               <span>•</span>
               <span>
                 {prestacao.expand?.usuario_id?.name || prestacao.expand?.usuario_id?.email}

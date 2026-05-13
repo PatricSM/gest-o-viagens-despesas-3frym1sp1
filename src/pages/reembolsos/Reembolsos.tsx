@@ -34,6 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -456,20 +457,7 @@ export default function Reembolsos() {
                         }).format(r.valor || 0)}
                       </TableCell>
                       <TableCell>
-                        {r.status === 'pago' ? (
-                          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
-                            Pago
-                          </Badge>
-                        ) : r.status === 'a_pagar' ? (
-                          <Badge
-                            variant="secondary"
-                            className="bg-orange-100 text-orange-800 hover:bg-orange-200"
-                          >
-                            A Pagar
-                          </Badge>
-                        ) : (
-                          <Badge variant="destructive">Cancelado</Badge>
-                        )}
+                        <StatusBadge status={r.status} />
                       </TableCell>
                       <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                         {r.data_aprovacao ? format(new Date(r.data_aprovacao), 'dd/MM/yyyy') : '-'}
@@ -586,25 +574,7 @@ export default function Reembolsos() {
                     <div>
                       <div className="font-medium flex items-center gap-2">
                         {r.codigo}
-                        {r.status === 'pago' ? (
-                          <Badge
-                            variant="default"
-                            className="h-5 bg-green-500 hover:bg-green-600 text-[10px]"
-                          >
-                            Pago
-                          </Badge>
-                        ) : r.status === 'a_pagar' ? (
-                          <Badge
-                            variant="secondary"
-                            className="h-5 bg-orange-100 text-orange-800 hover:bg-orange-200 text-[10px]"
-                          >
-                            A Pagar
-                          </Badge>
-                        ) : (
-                          <Badge variant="destructive" className="h-5 text-[10px]">
-                            Cancelado
-                          </Badge>
-                        )}
+                        <StatusBadge status={r.status} size="sm" />
                       </div>
                       <div className="text-muted-foreground mt-1 text-xs">
                         Ref: {r.expand?.prestacao_id?.codigo || '-'}

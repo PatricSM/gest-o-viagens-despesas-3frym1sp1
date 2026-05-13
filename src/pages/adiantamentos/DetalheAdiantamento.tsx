@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, Wallet, XCircle, DollarSign } from 'lucide-rea
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { getAdiantamento, updateAdiantamento } from '@/services/adiantamentos'
 import { getWorkflowRunSteps } from '@/services/workflows'
@@ -82,20 +83,7 @@ export default function DetalheAdiantamento() {
                 <h1 className="text-3xl font-bold tracking-tight">
                   Detalhes do Adiantamento {item.codigo && `#${item.codigo}`}
                 </h1>
-                <Badge
-                  variant="outline"
-                  className={
-                    item.status === 'aprovado' ||
-                    item.status === 'pago' ||
-                    item.status === 'acertado'
-                      ? 'bg-green-100 text-green-700 border-green-200'
-                      : item.status === 'rejeitado' || item.status === 'cancelado'
-                        ? 'bg-red-100 text-red-700 border-red-200'
-                        : 'bg-amber-100 text-amber-700 border-amber-200'
-                  }
-                >
-                  {item.status.toUpperCase()}
-                </Badge>
+                <StatusBadge status={item.status} />
               </div>
               <p className="text-muted-foreground mt-1">
                 Solicitado em {formatDate(item.created)} por {item.expand?.usuario_id?.name}
