@@ -42,6 +42,8 @@ import FiliaisList from './pages/cadastros/FiliaisList'
 import MoedasList from './pages/cadastros/MoedasList'
 import PoliticasList from './pages/admin/PoliticasList'
 import WorkflowsList from './pages/admin/WorkflowsList'
+import Auditoria from './pages/admin/Auditoria'
+import AuditoriaDuplicadas from './pages/admin/AuditoriaDuplicadas'
 
 const App = () => (
   <AuthProvider>
@@ -88,8 +90,12 @@ const App = () => (
                 <Route path="/reembolsos" element={<Reembolsos />} />
               </Route>
 
+              <Route element={<RoleGuard allowed={['admin', 'financeiro', 'auditor']} />}>
+                <Route path="/auditoria-duplicadas" element={<AuditoriaDuplicadas />} />
+              </Route>
+
               <Route element={<RoleGuard allowed={['admin', 'auditor']} />}>
-                <Route path="/auditoria" element={<PlaceholderPage title="Logs de Auditoria" />} />
+                <Route path="/auditoria" element={<Auditoria />} />
                 <Route path="/cadastros" element={<CadastrosHub />} />
                 <Route path="/cadastros/usuarios" element={<UsuariosList />} />
                 <Route path="/cadastros/departamentos" element={<DepartamentosList />} />

@@ -124,6 +124,12 @@ const getNavGroups = (role: string | null) => {
       label: 'Administração',
       items: [
         { title: 'Auditoria', url: '/auditoria', icon: History, roles: ['admin', 'auditor'] },
+        {
+          title: 'Duplicadas',
+          url: '/auditoria-duplicadas',
+          icon: Scale,
+          roles: ['admin', 'auditor', 'financeiro'],
+        },
         { title: 'Cadastros', url: '/cadastros', icon: Settings, roles: ['admin'] },
         { title: 'Políticas', url: '/politica', icon: Scale, roles: ['admin'] },
         { title: 'Workflows', url: '/workflows', icon: Network, roles: ['admin'] },

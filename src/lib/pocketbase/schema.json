@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T23:59:38.249Z",
+  "generatedAt": "2026-05-13T00:09:39.638Z",
   "collections": [
     {
       "name": "users",
@@ -2859,6 +2859,75 @@
           "type": "bool",
           "required": false,
           "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "duplicidade_alertas",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor' || @request.auth.role = 'financeiro')",
+        "view": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor' || @request.auth.role = 'financeiro')",
+        "create": "@request.auth.empresa_id = empresa_id",
+        "update": "@request.auth.empresa_id = empresa_id && (@request.auth.role = 'admin' || @request.auth.role = 'auditor' || @request.auth.role = 'financeiro')",
+        "delete": "@request.auth.empresa_id = empresa_id && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "empresa_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "empresas"
+        },
+        {
+          "name": "despesa_a_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "despesas"
+        },
+        {
+          "name": "despesa_b_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "despesas"
+        },
+        {
+          "name": "motivo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["aberto", "confirmado", "falso_positivo"]
+        },
+        {
+          "name": "reviewed_by",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         },
         {
           "name": "created",
