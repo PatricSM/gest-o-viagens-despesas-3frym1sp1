@@ -20,14 +20,14 @@ migrate(
     // 2. Seed User
     let user
     try {
-      user = app.findAuthRecordByEmail('_pb_users_auth_', 'patric.martins@adapta.org')
+      user = app.findAuthRecordByEmail('_pb_users_auth_', 'admin@adapta.org')
     } catch (_) {
       const usersCol = app.findCollectionByNameOrId('_pb_users_auth_')
       user = new Record(usersCol)
-      user.setEmail('patric.martins@adapta.org')
+      user.setEmail('admin@adapta.org')
       user.setPassword('Skip@Pass')
       user.setVerified(true)
-      user.set('name', 'Patric Martins')
+      user.set('name', 'Administrador Adapta')
       user.set('empresa_id', empresa.id)
       user.set('role', 'admin')
       user.set('active', true)
@@ -52,7 +52,7 @@ migrate(
   },
   (app) => {
     try {
-      const user = app.findAuthRecordByEmail('_pb_users_auth_', 'patric.martins@adapta.org')
+      const user = app.findAuthRecordByEmail('_pb_users_auth_', 'admin@adapta.org')
       try {
         const pivot = app.findFirstRecordByFilter('user_empresas', `user_id = '${user.id}'`)
         if (pivot) app.delete(pivot)

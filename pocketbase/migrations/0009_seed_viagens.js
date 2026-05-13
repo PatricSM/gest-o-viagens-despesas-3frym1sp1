@@ -4,7 +4,7 @@ migrate(
     if (empresas.length === 0) return
     const empresaId = empresas[0].id
 
-    const users = app.findRecordsByFilter('users', "email = 'patric.martins@adapta.org'", '', 1, 0)
+    const users = app.findRecordsByFilter('users', "email = 'admin@adapta.org'", '', 1, 0)
     if (users.length === 0) return
     const userId = users[0].id
 
