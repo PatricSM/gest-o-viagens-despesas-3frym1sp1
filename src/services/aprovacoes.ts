@@ -6,10 +6,21 @@ export interface PendingApprovalData {
   target: any
 }
 
-export const getPendingApprovals = async (userId: string): Promise<PendingApprovalData[]> => {
+export const getPendingApprovals = async (
+  userId: string,
+  role?: string | null,
+  empresaId?: string,
+): Promise<PendingApprovalData[]> => {
+  // Admin e auditor têm visão global da empresa.
+  // Gestor e financeiro só veem itens onde são aprovadores diretos.
+  const isGlobalView = (role === 'admin' || role === 'auditor') && !!empresaId
+  const filter = isGlobalView
+    ? `status="pendente" && run_id.empresa_id="${empresaId}"`
+    : `aprovador_id="${userId}" && status="pendente"`
+
   const steps = await pb.collection('workflow_run_steps').getFullList({
-    filter: `aprovador_id="${userId}" && status="pendente"`,
-    expand: 'run_id,run_id.submitted_by,etapa_id',
+    filter,
+    expand: 'run_id,run_id.submitted_by,etapa_id,aprovador_id',
     sort: 'created',
   })
 

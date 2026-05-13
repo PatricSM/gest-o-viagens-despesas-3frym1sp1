@@ -165,8 +165,8 @@ export default function WorkflowEditor({
   }
 
   const handleClone = async () => {
-    if (!currentEmpresa?.empresa_id || !user?.id) return
-    await adminService.cloneWorkflow(workflow.id, currentEmpresa.empresa_id, user.id)
+    if (!currentEmpresa?.id || !user?.id) return
+    await adminService.cloneWorkflow(workflow.id, currentEmpresa.id, user.id)
     toast({ title: 'Nova versão criada' })
     onBack()
   }

@@ -51,8 +51,8 @@ export default function StageModal({ etapa, workflowId, order, onSave, onDelete,
   }, [etapa])
 
   useEffect(() => {
-    if (open && currentEmpresa?.empresa_id) {
-      adminService.getUsers(currentEmpresa.empresa_id).then(setUsers)
+    if (open && currentEmpresa?.id) {
+      adminService.getUsers(currentEmpresa.id).then(setUsers)
     }
   }, [open, currentEmpresa])
 

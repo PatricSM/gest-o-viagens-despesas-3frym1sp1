@@ -21,7 +21,7 @@ import { ApprovalList } from './components/ApprovalList'
 import { ApprovalModals } from './components/ApprovalModals'
 
 export default function Aprovacoes() {
-  const { user, currentEmpresa } = useAuth()
+  const { user, currentEmpresa, userRole } = useAuth()
   const { toast } = useToast()
   const isMobile = useIsMobile()
 
@@ -71,7 +71,7 @@ export default function Aprovacoes() {
     if (!user) return
     setIsLoading(true)
     try {
-      const pendings = await getPendingApprovals(user.id)
+      const pendings = await getPendingApprovals(user.id, userRole, currentEmpresa?.id)
       const mapped = pendings.map((item) => {
         const col = item.run.target_collection
         const t = item.target

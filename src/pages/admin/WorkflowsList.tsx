@@ -26,8 +26,8 @@ export default function WorkflowsList() {
   const [editing, setEditing] = useState<any>(null)
 
   const loadData = async () => {
-    if (!currentEmpresa?.empresa_id) return
-    const list = await adminService.getWorkflows(currentEmpresa.empresa_id)
+    if (!currentEmpresa?.id) return
+    const list = await adminService.getWorkflows(currentEmpresa.id)
     setWorkflows(list)
   }
 
@@ -36,10 +36,10 @@ export default function WorkflowsList() {
   }, [currentEmpresa])
 
   const handleCreate = async () => {
-    if (!currentEmpresa?.empresa_id || !user?.id) return
+    if (!currentEmpresa?.id || !user?.id) return
     try {
       const w = await adminService.createWorkflow({
-        empresa_id: currentEmpresa.empresa_id,
+        empresa_id: currentEmpresa.id,
         tipo,
         nome: `Workflow de ${tipo} padrão`,
         versao: 1,

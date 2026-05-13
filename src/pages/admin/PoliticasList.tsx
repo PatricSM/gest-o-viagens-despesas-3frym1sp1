@@ -37,8 +37,8 @@ export default function PoliticasList() {
   const [history, setHistory] = useState<any[]>([])
 
   const loadData = async () => {
-    if (!currentEmpresa?.empresa_id) return
-    const pols = await adminService.getPoliticas(currentEmpresa.empresa_id)
+    if (!currentEmpresa?.id) return
+    const pols = await adminService.getPoliticas(currentEmpresa.id)
     setHistory(pols)
     setActive(pols.find((p) => p.active) || null)
   }
@@ -48,13 +48,13 @@ export default function PoliticasList() {
   }, [currentEmpresa])
 
   const handleNovaVersao = async () => {
-    if (!currentEmpresa?.empresa_id || !user?.id) return
+    if (!currentEmpresa?.id || !user?.id) return
     try {
       if (active) {
-        await adminService.clonePolitica(active.id, currentEmpresa.empresa_id, user.id)
+        await adminService.clonePolitica(active.id, currentEmpresa.id, user.id)
       } else {
         await adminService.createPolitica({
-          empresa_id: currentEmpresa.empresa_id,
+          empresa_id: currentEmpresa.id,
           versao: 1,
           vigencia_inicio: new Date().toISOString(),
           active: true,
@@ -70,7 +70,7 @@ export default function PoliticasList() {
 
   const handleRestore = async (id: string) => {
     try {
-      await adminService.clonePolitica(id, currentEmpresa.empresa_id, user.id)
+      await adminService.clonePolitica(id, currentEmpresa.id, user.id)
       toast({ title: 'Versão restaurada com sucesso' })
       loadData()
     } catch {
@@ -207,7 +207,7 @@ export default function PoliticasList() {
                 <GeralForm politica={active} />
               </TabsContent>
               <TabsContent value="tetos">
-                <TetosTable politicaId={active.id} empresaId={currentEmpresa.empresa_id} />
+                <TetosTable politicaId={active.id} empresaId={currentEmpresa.id} />
               </TabsContent>
               <TabsContent value="diarias">
                 <DiariasTable politicaId={active.id} />
@@ -216,7 +216,7 @@ export default function PoliticasList() {
                 <ClassesTable politicaId={active.id} />
               </TabsContent>
               <TabsContent value="bloqueadas">
-                <BloqueadasTable politicaId={active.id} empresaId={currentEmpresa.empresa_id} />
+                <BloqueadasTable politicaId={active.id} empresaId={currentEmpresa.id} />
               </TabsContent>
             </div>
           </Tabs>
