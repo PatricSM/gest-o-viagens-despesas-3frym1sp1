@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,6 @@ const TEST_PASSWORD = 'Skip@Pass'
 export default function Login() {
   const { signIn, selectCompany } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const { toast } = useToast()
 
   const [email, setEmail] = useState('')
@@ -31,7 +30,12 @@ export default function Login() {
   const [empresas, setEmpresas] = useState<RecordModel[]>([])
   const [requiresSelection, setRequiresSelection] = useState(false)
 
-  const from = location.state?.from?.pathname || '/dashboard'
+  // Sempre redireciona pra /dashboard após login.
+  // Respeitar location.state.from podia mandar o user pra uma rota
+  // proibida ao seu role (ex: viajante para /aprovacoes via deep-link
+  // antes de logar) e disparar o toast do RoleGuard "Acesso Restrito"
+  // imediatamente após o login. Dashboard é seguro para os 5 roles.
+  const from = '/dashboard'
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
