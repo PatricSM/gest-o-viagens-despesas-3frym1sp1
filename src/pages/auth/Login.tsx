@@ -193,32 +193,30 @@ export default function Login() {
                 </Button>
               </form>
 
-              {import.meta.env.DEV && (
-                <div className="mt-8 pt-6 border-t border-outline-variant">
-                  <div className="text-xs text-muted-foreground text-center mb-3 uppercase tracking-wider font-semibold">
-                    Contas de Teste (DEV)
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {TEST_ACCOUNTS.map((acc) => (
-                      <button
-                        key={acc.email}
-                        type="button"
-                        onClick={() => fillTestCredentials(acc.email)}
-                        className="text-left px-3 py-2 rounded-md border border-outline-variant bg-surface-container-low hover:bg-surface-container transition-colors text-xs"
-                      >
-                        <div className="font-semibold text-on-surface">{acc.role}</div>
-                        <div className="text-on-surface-variant truncate">{acc.email}</div>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground text-center mt-3">
-                    Senha de todas as contas:{' '}
-                    <code className="font-mono bg-surface-container px-1.5 py-0.5 rounded">
-                      {TEST_PASSWORD}
-                    </code>
-                  </div>
+              <div className="mt-8 pt-6 border-t border-outline-variant">
+                <div className="text-xs text-muted-foreground text-center mb-3 uppercase tracking-wider font-semibold">
+                  Contas de Teste — clique para preencher
                 </div>
-              )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {TEST_ACCOUNTS.map((acc) => (
+                    <button
+                      key={acc.email}
+                      type="button"
+                      onClick={() => fillTestCredentials(acc.email)}
+                      className="text-left px-3 py-2 rounded-md border border-outline-variant bg-surface-container-low hover:bg-surface-container hover:border-primary transition-colors text-xs"
+                    >
+                      <div className="font-semibold text-on-surface">{acc.role}</div>
+                      <div className="text-on-surface-variant truncate">{acc.email}</div>
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[11px] text-muted-foreground text-center mt-3">
+                  Senha de todas as contas:{' '}
+                  <code className="font-mono bg-surface-container px-1.5 py-0.5 rounded">
+                    {TEST_PASSWORD}
+                  </code>
+                </div>
+              </div>
             </div>
           )}
         </div>
