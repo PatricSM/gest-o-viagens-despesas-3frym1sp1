@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { MoneyDisplay } from '@/components/common/MoneyDisplay'
+import { DateDisplay } from '@/components/common/DateDisplay'
+import { Timeline, TimelineItem } from '@/components/common/Timeline'
 import {
   FileText,
   ArrowLeft,
@@ -14,6 +17,7 @@ import {
   Receipt,
   Wallet,
   Copy,
+  CheckCircle2,
 } from 'lucide-react'
 import {
   getViagem,
@@ -24,7 +28,7 @@ import {
   duplicateViagem,
 } from '@/services/viagens'
 import pb from '@/lib/pocketbase/client'
-import { formatCurrency, formatDate } from '@/lib/formatters'
+import { formatDate } from '@/lib/formatters'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 
@@ -93,12 +97,10 @@ export default function DetalheViagem() {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-bold">Solicitação {v.codigo || 'S/N'}</h2>
-            <Badge variant="outline" className="bg-primary/5">
-              {v.status.toUpperCase()}
-            </Badge>
+            <StatusBadge status={v.status} />
           </div>
           <p className="text-sm text-muted-foreground">
-            Criada em {formatDate(v.created)} por {v.expand?.usuario_id?.name}
+            Criada em <DateDisplay date={v.created} /> por {v.expand?.usuario_id?.name}
           </p>
         </div>
         <div className="ml-auto flex gap-2">
@@ -158,7 +160,7 @@ export default function DetalheViagem() {
                   Total Estimado
                 </p>
                 <p className="font-bold text-primary mt-1 text-lg">
-                  {formatCurrency(v.total_estimado || 0)}
+                  <MoneyDisplay value={v.total_estimado || 0} />
                 </p>
               </div>
             </div>
@@ -180,7 +182,7 @@ export default function DetalheViagem() {
                         <span>{t.destino}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDate(t.data_ida)} • {t.tipo_transporte}
+                        <DateDisplay date={t.data_ida} /> • {t.tipo_transporte}
                       </div>
                     </div>
                   ))
@@ -205,7 +207,9 @@ export default function DetalheViagem() {
                         <p className="font-medium capitalize">{e.tipo}</p>
                         <p className="text-xs text-muted-foreground">{e.descricao}</p>
                       </div>
-                      <span className="font-semibold">{formatCurrency(e.valor)}</span>
+                      <span className="font-semibold">
+                        <MoneyDisplay value={e.valor} />
+                      </span>
                     </div>
                   ))
                 )}
@@ -221,42 +225,28 @@ export default function DetalheViagem() {
                 Nenhum fluxo de aprovação iniciado.
               </p>
             ) : (
-              <div className="space-y-6">
-                {workflowSteps.map((step, index) => (
-                  <div key={step.id} className="flex gap-4 relative">
-                    {index < workflowSteps.length - 1 && (
-                      <div className="absolute left-4 top-10 bottom-[-24px] w-px bg-border"></div>
-                    )}
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center relative z-10 border border-background">
-                      {step.status === 'aprovado' ? (
-                        <Badge className="w-8 h-8 rounded-full p-0 flex items-center justify-center bg-green-500">
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        </Badge>
-                      ) : step.status === 'rejeitado' ? (
-                        <Badge className="w-8 h-8 rounded-full p-0 flex items-center justify-center bg-red-500">
-                          <Ban className="w-4 h-4 text-white" />
-                        </Badge>
-                      ) : (
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="pb-6 pt-1">
-                      <p className="font-medium text-sm">Etapa {step.ordem}</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Status:{' '}
-                        <span className="uppercase font-semibold text-foreground">
-                          {step.status}
-                        </span>
-                      </p>
-                      {step.decided_at && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(step.decided_at)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Timeline
+                items={workflowSteps.map((step) => ({
+                  id: step.id,
+                  title: `Etapa ${step.ordem}`,
+                  description: `Aprovador: ${step.expand?.aprovador_id?.name || 'Não definido'}`,
+                  status:
+                    step.status === 'aprovado'
+                      ? 'completed'
+                      : step.status === 'rejeitado'
+                        ? 'error'
+                        : 'upcoming',
+                  icon:
+                    step.status === 'aprovado' ? (
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    ) : step.status === 'rejeitado' ? (
+                      <Ban className="w-4 h-4 text-white" />
+                    ) : (
+                      <Clock className="w-4 h-4" />
+                    ),
+                  time: step.decided_at ? formatDate(step.decided_at) : undefined,
+                }))}
+              />
             )}
           </Card>
         </TabsContent>

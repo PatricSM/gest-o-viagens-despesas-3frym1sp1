@@ -4,7 +4,8 @@ import { Search, Plus, Filter, Download, Eye, Pencil, Trash2, Copy } from 'lucid
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { MoneyDisplay } from '@/components/common/MoneyDisplay'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +22,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { formatCurrency } from '@/lib/formatters'
 import {
   getViagens,
   deleteViagem,
@@ -110,29 +110,6 @@ export default function ListaViagens() {
       destinos[v.id]?.toLowerCase().includes(term)
     )
   })
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'concluida':
-        return 'bg-slate-100 text-slate-700'
-      case 'aprovada':
-        return 'bg-green-100 text-green-700'
-      case 'em_aprovacao':
-        return 'bg-blue-100 text-blue-700'
-      case 'em_andamento':
-        return 'bg-purple-100 text-purple-700'
-      case 'rascunho':
-        return 'bg-zinc-100 text-zinc-600'
-      case 'rejeitada':
-      case 'cancelada':
-        return 'bg-red-100 text-red-700'
-      default:
-        return 'bg-amber-100 text-amber-700'
-    }
-  }
-
-  const getStatusLabel = (status: string) =>
-    status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto animate-fade-in-up">
@@ -245,12 +222,10 @@ export default function ListaViagens() {
                     </TableCell>
                     <TableCell className="text-sm">{destinos[v.id] || '-'}</TableCell>
                     <TableCell className="text-sm font-medium">
-                      {formatCurrency(v.total_estimado || 0)}
+                      <MoneyDisplay value={v.total_estimado || 0} />
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={getStatusColor(v.status)}>
-                        {getStatusLabel(v.status)}
-                      </Badge>
+                      <StatusBadge status={v.status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">

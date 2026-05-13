@@ -12,9 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { MoneyDisplay } from '@/components/common/MoneyDisplay'
+import { DateDisplay } from '@/components/common/DateDisplay'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { formatCurrency, formatDate } from '@/lib/formatters'
+import { EmptyState } from '@/components/common/EmptyState'
 import { getDespesas, deleteDespesa } from '@/services/despesas'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useAuth } from '@/hooks/use-auth'
@@ -98,8 +100,12 @@ export default function ListaDespesas() {
             <TableBody>
               {despesas.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    Nenhuma despesa registrada.
+                  <TableCell colSpan={8} className="text-center p-0">
+                    <EmptyState
+                      icon={Receipt}
+                      title="Sem Despesas"
+                      description="Nenhuma despesa registrada."
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -113,7 +119,7 @@ export default function ListaDespesas() {
                 return (
                   <TableRow key={exp.id}>
                     <TableCell className="text-sm whitespace-nowrap">
-                      {formatDate(exp.data_despesa)}
+                      <DateDisplay date={exp.data_despesa} />
                     </TableCell>
                     <TableCell className="font-medium max-w-[200px] truncate" title={exp.descricao}>
                       {exp.descricao || 'Despesa'}
@@ -133,7 +139,7 @@ export default function ListaDespesas() {
                       {exp.expand?.viagem_id?.codigo || '-'}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {formatCurrency(exp.valor)}
+                      <MoneyDisplay value={exp.valor} moeda={exp.expand?.moeda_id?.codigo} />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
@@ -163,21 +169,8 @@ export default function ListaDespesas() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Badge
-                        variant="outline"
-                        className={
-                          exp.status === 'aprovada' || exp.status === 'reembolsada'
-                            ? 'bg-green-100 text-green-700 border-green-200'
-                            : exp.status === 'rejeitada'
-                              ? 'bg-red-100 text-red-700 border-red-200'
-                              : exp.status === 'rascunho'
-                                ? 'bg-slate-100 text-slate-700 border-slate-200'
-                                : 'bg-amber-100 text-amber-700 border-amber-200'
-                        }
-                      >
-                        {exp.status.toUpperCase()}
-                      </Badge>
+                    <TableCell className="text-right flex justify-end">
+                      <StatusBadge status={exp.status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

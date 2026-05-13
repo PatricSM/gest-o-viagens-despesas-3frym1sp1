@@ -4,8 +4,12 @@ import { ArrowLeft, Edit, Trash, History, FileText, CheckCircle2 } from 'lucide-
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { formatCurrency, formatDate } from '@/lib/formatters'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { MoneyDisplay } from '@/components/common/MoneyDisplay'
+import { DateDisplay } from '@/components/common/DateDisplay'
+import { ReceiptViewer } from '@/components/common/ReceiptViewer'
+import { Timeline } from '@/components/common/Timeline'
+import { PolicyViolationAlert } from '@/components/common/PolicyViolationAlert'
 import { getDespesa, deleteDespesa } from '@/services/despesas'
 import { getWorkflowRunSteps } from '@/services/workflows'
 import pb from '@/lib/pocketbase/client'
@@ -76,23 +80,10 @@ export default function DetalheDespesa() {
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-headline-md">Detalhes da Despesa</h2>
-              <Badge
-                variant="outline"
-                className={
-                  despesa.status === 'aprovada' || despesa.status === 'reembolsada'
-                    ? 'bg-green-100 text-green-700 border-green-200'
-                    : despesa.status === 'rejeitada'
-                      ? 'bg-red-100 text-red-700 border-red-200'
-                      : despesa.status === 'rascunho'
-                        ? 'bg-slate-100 text-slate-700 border-slate-200'
-                        : 'bg-amber-100 text-amber-700 border-amber-200'
-                }
-              >
-                {despesa.status.toUpperCase()}
-              </Badge>
+              <StatusBadge status={despesa.status} />
             </div>
             <p className="text-body-md text-muted-foreground mt-1">
-              Registrada em {formatDate(despesa.created)}
+              Registrada em <DateDisplay date={despesa.created} />
             </p>
           </div>
         </div>
@@ -115,6 +106,7 @@ export default function DetalheDespesa() {
         </div>
       </div>
 
+      <PolicyViolationAlert violations={despesa.politica_violacoes} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className="shadow-sm">
@@ -122,11 +114,15 @@ export default function DetalheDespesa() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Data da Despesa</p>
-                  <p className="text-base font-semibold">{formatDate(despesa.data_despesa)}</p>
+                  <p className="text-base font-semibold">
+                    <DateDisplay date={despesa.data_despesa} />
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Valor Total</p>
-                  <p className="text-lg font-bold text-primary">{formatCurrency(despesa.valor)}</p>
+                  <p className="text-lg font-bold text-primary">
+                    <MoneyDisplay value={despesa.valor} moeda={despesa.expand?.moeda_id?.codigo} />
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Categoria</p>
@@ -167,7 +163,7 @@ export default function DetalheDespesa() {
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Valor/Km</p>
                       <p className="text-sm font-medium">
-                        {formatCurrency(despesa.km_valor_por_km)}
+                        <MoneyDisplay value={despesa.km_valor_por_km} />
                       </p>
                     </div>
                   </div>
@@ -184,48 +180,26 @@ export default function DetalheDespesa() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {steps.map((step, idx) => (
-                    <div key={step.id} className="flex gap-4 relative">
-                      {idx < steps.length - 1 && (
-                        <div className="absolute left-4 top-8 bottom-[-16px] w-0.5 bg-muted" />
-                      )}
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${
-                          step.status === 'aprovado'
-                            ? 'bg-green-100 text-green-600'
-                            : step.status === 'rejeitado'
-                              ? 'bg-red-100 text-red-600'
-                              : 'bg-muted text-muted-foreground'
-                        }`}
-                      >
-                        <span className="text-xs font-bold">{idx + 1}</span>
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-sm">
-                              {step.expand?.etapa_id?.tipo_aprovador === 'gestor_direto'
-                                ? 'Gestor Direto'
-                                : 'Aprovador'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {step.expand?.aprovador_id?.name || 'Aguardando atribuição'}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="uppercase text-[10px]">
-                            {step.status}
-                          </Badge>
-                        </div>
-                        {step.comentario && (
-                          <p className="text-sm mt-2 p-2 bg-muted/40 rounded-md text-foreground/80 italic">
-                            "{step.comentario}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <Timeline
+                  items={steps.map((step, idx) => ({
+                    id: step.id,
+                    title:
+                      step.expand?.etapa_id?.tipo_aprovador === 'gestor_direto'
+                        ? 'Gestor Direto'
+                        : 'Aprovador',
+                    description: `${step.expand?.aprovador_id?.name || 'Aguardando atribuição'} ${step.comentario ? `- "${step.comentario}"` : ''}`,
+                    status:
+                      step.status === 'aprovado'
+                        ? 'completed'
+                        : step.status === 'rejeitado'
+                          ? 'error'
+                          : 'upcoming',
+                    icon: <span className="text-xs font-bold">{idx + 1}</span>,
+                    time: step.decided_at
+                      ? new Intl.DateTimeFormat('pt-BR').format(new Date(step.decided_at))
+                      : undefined,
+                  }))}
+                />
               </CardContent>
             </Card>
           )}
@@ -249,7 +223,7 @@ export default function DetalheDespesa() {
                           {log.expand?.user_id?.name || 'Sistema'}
                         </span>
                         <span className="text-muted-foreground text-xs">
-                          {formatDate(log.created)}
+                          <DateDisplay date={log.created} />
                         </span>
                       </div>
                       <p className="text-muted-foreground">
@@ -272,28 +246,7 @@ export default function DetalheDespesa() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 border-t">
-              {hasComprovante && comprovanteUrl ? (
-                <div className="w-full h-[600px] bg-muted/10">
-                  {isImage ? (
-                    <img
-                      src={comprovanteUrl}
-                      alt="Comprovante"
-                      className="w-full h-full object-contain p-2"
-                    />
-                  ) : (
-                    <iframe
-                      src={comprovanteUrl}
-                      className="w-full h-full border-0"
-                      title="PDF Document"
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
-                  <FileText className="w-12 h-12 mb-3 opacity-20" />
-                  <p className="text-sm">Nenhum comprovante anexado</p>
-                </div>
-              )}
+              <ReceiptViewer url={comprovanteUrl} isImage={isImage} />
             </CardContent>
           </Card>
         </div>
