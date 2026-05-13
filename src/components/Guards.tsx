@@ -23,9 +23,7 @@ export const RoleGuard = ({ allowed }: { allowed: string[] }) => {
   useEffect(() => {
     if (!loading && userRole && !allowed.includes(userRole)) {
       // eslint-disable-next-line no-console
-      console.warn(
-        `[RoleGuard] blocked. userRole="${userRole}", allowed=[${allowed.join(', ')}]`,
-      )
+      console.warn(`[RoleGuard] blocked. userRole="${userRole}", allowed=[${allowed.join(', ')}]`)
       toast({
         title: 'Acesso Restrito',
         description: `Acesso restrito a ${allowed.join(', ')}`,
