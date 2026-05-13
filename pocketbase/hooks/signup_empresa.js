@@ -1,29 +1,39 @@
-// @deps zod@3.23.8
 routerAdd(
   'POST',
   '/backend/v1/signup-empresa',
   (e) => {
-    const { z } = require('zod')
+    const body = e.requestInfo().body || {}
+    const errors = {}
 
-    const schema = z.object({
-      razao_social: z.string().min(1, 'Razão social é obrigatória'),
-      cnpj: z.string().optional(),
-      nome_fantasia: z.string().optional(),
-      name_admin: z.string().min(1, 'Nome é obrigatório'),
-      email_admin: z.string().email('E-mail inválido'),
-      senha_admin: z.string().min(8, 'Senha deve ter no mínimo 8 caracteres'),
-    })
+    if (
+      !body.razao_social ||
+      typeof body.razao_social !== 'string' ||
+      body.razao_social.trim() === ''
+    ) {
+      errors.razao_social = new ValidationError('validation_required', 'Razão social é obrigatória')
+    }
+    if (!body.name_admin || typeof body.name_admin !== 'string' || body.name_admin.trim() === '') {
+      errors.name_admin = new ValidationError('validation_required', 'Nome é obrigatório')
+    }
+    if (
+      !body.email_admin ||
+      typeof body.email_admin !== 'string' ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email_admin)
+    ) {
+      errors.email_admin = new ValidationError('validation_invalid_email', 'E-mail inválido')
+    }
+    if (!body.senha_admin || typeof body.senha_admin !== 'string' || body.senha_admin.length < 8) {
+      errors.senha_admin = new ValidationError(
+        'validation_length',
+        'Senha deve ter no mínimo 8 caracteres',
+      )
+    }
 
-    const result = schema.safeParse(e.requestInfo().body)
-    if (!result.success) {
-      const errors = {}
-      for (const issue of result.error.issues) {
-        errors[issue.path[0]] = new ValidationError(issue.code, issue.message)
-      }
+    if (Object.keys(errors).length > 0) {
       throw new BadRequestError('Dados inválidos', errors)
     }
 
-    const data = result.data
+    const data = body
 
     try {
       $app.findAuthRecordByEmail('users', data.email_admin)
