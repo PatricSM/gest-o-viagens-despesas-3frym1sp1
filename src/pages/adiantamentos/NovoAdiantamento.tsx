@@ -99,78 +99,42 @@ export default function NovoAdiantamento() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-6 animate-fade-in h-full">
-      <div>
-        <h2 className="text-headline-md">Novo Adiantamento</h2>
-        <p className="text-body-md text-muted-foreground mt-1">
-          Solicite fundos antecipados para despesas de viagem.
-        </p>
-      </div>
+    <div className="flex gap-6 h-full animate-fade-in">
+      <div className="flex-1 flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Novo Adiantamento</h1>
+            <p className="text-muted-foreground mt-1">
+              Solicite fundos antecipados para despesas de viagem.
+            </p>
+          </div>
+        </div>
 
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-primary" /> Informações da Solicitação
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="viagem_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Viagem Associada</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a viagem..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {viagens.map((v) => (
-                          <SelectItem key={v.id} value={v.id}>
-                            {v.codigo} - {v.motivo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-primary" /> Informações da Solicitação
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="valor"
+                  name="viagem_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Valor Solicitado</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" {...field} value={field.value || ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="moeda_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Moeda</FormLabel>
+                      <FormLabel>Viagem Associada</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
+                            <SelectValue placeholder="Selecione a viagem..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {moedas.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.codigo} - {m.nome}
+                          {viagens.map((v) => (
+                            <SelectItem key={v.id} value={v.id}>
+                              {v.codigo} - {v.motivo}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -179,57 +143,97 @@ export default function NovoAdiantamento() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="data_pagamento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data Prevista para Uso</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="valor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valor Solicitado</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="moeda_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Moeda</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {moedas.map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.codigo} - {m.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <FormField
-                control={form.control}
-                name="justificativa"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Justificativa</FormLabel>
-                    <FormControl>
-                      <textarea
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="Explique o motivo da necessidade do adiantamento..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="data_pagamento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data Prevista para Uso</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="flex justify-end pt-4 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mr-3"
-                  onClick={() => navigate('/adiantamentos')}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  <Send className="w-4 h-4 mr-2" /> Enviar Solicitação
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                <FormField
+                  control={form.control}
+                  name="justificativa"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Justificativa</FormLabel>
+                      <FormControl>
+                        <textarea
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Explique o motivo da necessidade do adiantamento..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end pt-4 border-t">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mr-3"
+                    onClick={() => navigate('/adiantamentos')}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit">
+                    <Send className="w-4 h-4 mr-2" /> Enviar Solicitação
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

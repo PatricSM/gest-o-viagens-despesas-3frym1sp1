@@ -70,90 +70,94 @@ export default function WorkflowsList() {
   const filtered = workflows.filter((w) => w.tipo === tipo)
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto animate-fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-headline-md">Workflows de Aprovação</h1>
-          <p className="text-body-sm text-muted-foreground mt-1">
-            Configure os fluxos e etapas de aprovação para as requisições.
-          </p>
-        </div>
-        <Button onClick={handleCreate} className="shadow-elevation">
-          <Plus className="w-4 h-4 mr-2" /> Novo Workflow
-        </Button>
-      </div>
-
-      <Card className="border-none shadow-elevation">
-        <Tabs value={tipo} onValueChange={setTipo} className="w-full">
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12 px-6">
-            <TabsTrigger
-              value="viagem"
-              className="data-[state=active]:border-b-2 border-primary rounded-none"
-            >
-              Viagem
-            </TabsTrigger>
-            <TabsTrigger
-              value="despesa"
-              className="data-[state=active]:border-b-2 border-primary rounded-none"
-            >
-              Despesa
-            </TabsTrigger>
-            <TabsTrigger
-              value="adiantamento"
-              className="data-[state=active]:border-b-2 border-primary rounded-none"
-            >
-              Adiantamento
-            </TabsTrigger>
-            <TabsTrigger
-              value="prestacao"
-              className="data-[state=active]:border-b-2 border-primary rounded-none"
-            >
-              Prestação
-            </TabsTrigger>
-          </TabsList>
-          <div className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Versão</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((w) => (
-                  <TableRow key={w.id}>
-                    <TableCell className="font-medium">{w.nome}</TableCell>
-                    <TableCell>v{w.versao}</TableCell>
-                    <TableCell>
-                      {w.active ? (
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
-                          Ativo
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline">Inativo</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => setEditing(w)}>
-                        <Settings className="w-4 h-4 mr-2" /> Editar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filtered.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                      Nenhum workflow encontrado para este módulo.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+    <div className="flex gap-6 h-full animate-fade-in">
+      <div className="flex-1 flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Workflows de Aprovação</h1>
+            <p className="text-muted-foreground mt-1">
+              Configure os fluxos e etapas de aprovação para as requisições.
+            </p>
           </div>
-        </Tabs>
-      </Card>
+          <div className="flex items-center gap-2">
+            <Button onClick={handleCreate} className="shadow-elevation">
+              <Plus className="w-4 h-4 mr-2" /> Novo Workflow
+            </Button>
+          </div>
+        </div>
+
+        <Card className="border-none shadow-elevation">
+          <Tabs value={tipo} onValueChange={setTipo} className="w-full">
+            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12 px-6">
+              <TabsTrigger
+                value="viagem"
+                className="data-[state=active]:border-b-2 border-primary rounded-none"
+              >
+                Viagem
+              </TabsTrigger>
+              <TabsTrigger
+                value="despesa"
+                className="data-[state=active]:border-b-2 border-primary rounded-none"
+              >
+                Despesa
+              </TabsTrigger>
+              <TabsTrigger
+                value="adiantamento"
+                className="data-[state=active]:border-b-2 border-primary rounded-none"
+              >
+                Adiantamento
+              </TabsTrigger>
+              <TabsTrigger
+                value="prestacao"
+                className="data-[state=active]:border-b-2 border-primary rounded-none"
+              >
+                Prestação
+              </TabsTrigger>
+            </TabsList>
+            <div className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Versão</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((w) => (
+                    <TableRow key={w.id}>
+                      <TableCell className="font-medium">{w.nome}</TableCell>
+                      <TableCell>v{w.versao}</TableCell>
+                      <TableCell>
+                        {w.active ? (
+                          <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                            Ativo
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">Inativo</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => setEditing(w)}>
+                          <Settings className="w-4 h-4 mr-2" /> Editar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        Nenhum workflow encontrado para este módulo.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Tabs>
+        </Card>
+      </div>
     </div>
   )
 }

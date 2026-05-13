@@ -91,111 +91,115 @@ export default function Notificacoes() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Notificações</h1>
-          <p className="text-muted-foreground">Acompanhe atualizações e alertas do sistema.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/perfil">
-              <Settings className="mr-2 h-4 w-4" />
-              Preferências
-            </Link>
-          </Button>
-          <Button variant="secondary" onClick={markAllAsRead}>
-            <CheckCheck className="mr-2 h-4 w-4" />
-            Marcar todas lidas
-          </Button>
-        </div>
-      </div>
-
-      <Card>
-        <CardHeader className="bg-muted/30 border-b">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <MailOpen className="w-5 h-5" /> Inbox
-            </CardTitle>
-            <div className="flex gap-2">
-              <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="unread">Não lidas</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[180px] bg-background">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Tipos</SelectItem>
-                  <SelectItem value="aprovacao_pendente">Aprovações</SelectItem>
-                  <SelectItem value="solicitacao_aprovada">Aprovadas</SelectItem>
-                  <SelectItem value="solicitacao_rejeitada">Rejeitadas</SelectItem>
-                  <SelectItem value="reembolso_processado">Reembolsos</SelectItem>
-                  <SelectItem value="lembrete_prestacao_atraso">Lembretes</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="flex gap-6 h-full">
+      <div className="flex-1 flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Notificações</h1>
+            <p className="text-muted-foreground mt-1">
+              Acompanhe atualizações e alertas do sistema.
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {notifications.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
-              <Inbox className="h-12 w-12 mb-3 text-muted-foreground/50" />
-              <p>Nenhuma notificação encontrada.</p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/perfil">
+                <Settings className="mr-2 h-4 w-4" />
+                Preferências
+              </Link>
+            </Button>
+            <Button variant="secondary" onClick={markAllAsRead}>
+              <CheckCheck className="mr-2 h-4 w-4" />
+              Marcar todas lidas
+            </Button>
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader className="bg-muted/30 border-b">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MailOpen className="w-5 h-5" /> Inbox
+              </CardTitle>
+              <div className="flex gap-2">
+                <Select value={filter} onValueChange={setFilter}>
+                  <SelectTrigger className="w-[140px] bg-background">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="unread">Não lidas</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-[180px] bg-background">
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Tipos</SelectItem>
+                    <SelectItem value="aprovacao_pendente">Aprovações</SelectItem>
+                    <SelectItem value="solicitacao_aprovada">Aprovadas</SelectItem>
+                    <SelectItem value="solicitacao_rejeitada">Rejeitadas</SelectItem>
+                    <SelectItem value="reembolso_processado">Reembolsos</SelectItem>
+                    <SelectItem value="lembrete_prestacao_atraso">Lembretes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`p-4 flex gap-4 transition-colors hover:bg-muted/30 ${!n.lida ? 'bg-primary/5' : ''}`}
-                >
-                  <div className="mt-1">{getIcon(n.tipo)}</div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h4
-                          className={`font-semibold ${!n.lida ? 'text-foreground' : 'text-foreground/80'}`}
-                        >
-                          {n.titulo}
-                        </h4>
-                        <p className="text-sm text-muted-foreground mt-1">{n.mensagem}</p>
-                        {n.link_url && (
-                          <Button variant="link" className="px-0 h-auto text-xs mt-2" asChild>
-                            <Link to={n.link_url}>Ver Detalhes</Link>
-                          </Button>
-                        )}
+          </CardHeader>
+          <CardContent className="p-0">
+            {notifications.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
+                <Inbox className="h-12 w-12 mb-3 text-muted-foreground/50" />
+                <p>Nenhuma notificação encontrada.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`p-4 flex gap-4 transition-colors hover:bg-muted/30 ${!n.lida ? 'bg-primary/5' : ''}`}
+                  >
+                    <div className="mt-1">{getIcon(n.tipo)}</div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h4
+                            className={`font-semibold ${!n.lida ? 'text-foreground' : 'text-foreground/80'}`}
+                          >
+                            {n.titulo}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mt-1">{n.mensagem}</p>
+                          {n.link_url && (
+                            <Button variant="link" className="px-0 h-auto text-xs mt-2" asChild>
+                              <Link to={n.link_url}>Ver Detalhes</Link>
+                            </Button>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatDistanceToNow(new Date(n.created), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </span>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {formatDistanceToNow(new Date(n.created), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
                     </div>
+                    {!n.lida && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => markAsRead(n.id)}
+                        className="shrink-0 h-8 w-8 text-muted-foreground hover:text-primary"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-                  {!n.lida && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => markAsRead(n.id)}
-                      className="shrink-0 h-8 w-8 text-muted-foreground hover:text-primary"
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

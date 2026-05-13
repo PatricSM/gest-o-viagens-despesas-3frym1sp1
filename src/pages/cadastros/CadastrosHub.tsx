@@ -64,27 +64,31 @@ export default function CadastrosHub() {
   ]
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto animate-fade-in">
-      <div>
-        <h1 className="text-headline-md">Cadastros Básicos</h1>
-        <p className="text-body-sm text-muted-foreground mt-1">
-          Gerencie a estrutura organizacional e operacional da empresa.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {modules.map((mod) => (
-          <Link key={mod.path} to={mod.path} className="block group outline-none">
-            <Card className="h-full transition-all hover:border-primary/50 hover:shadow-md cursor-pointer bg-card">
-              <CardHeader>
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <mod.icon className="w-5 h-5 text-primary" />
-                </div>
-                <CardTitle className="text-title-sm">{mod.title}</CardTitle>
-                <CardDescription className="text-xs">{mod.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
+    <div className="flex gap-6 h-full animate-fade-in">
+      <div className="flex-1 flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Cadastros Básicos</h1>
+            <p className="text-muted-foreground mt-1">
+              Gerencie a estrutura organizacional e operacional da empresa.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {modules.map((mod) => (
+            <Link key={mod.path} to={mod.path} className="block group outline-none">
+              <Card className="h-full transition-all hover:border-primary/50 hover:shadow-md cursor-pointer bg-card">
+                <CardHeader>
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <mod.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-title-sm">{mod.title}</CardTitle>
+                  <CardDescription className="text-xs">{mod.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )
