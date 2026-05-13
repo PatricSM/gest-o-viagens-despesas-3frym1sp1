@@ -7,6 +7,7 @@ import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCardWithTrend } from '@/components/common/StatCardWithTrend'
 
 export function FinanceDashboard() {
   const { user } = useAuth()
@@ -80,55 +81,43 @@ export function FinanceDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Relatórios p/ Aprovar</CardTitle>
-            <FileText className="w-4 h-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.relatoriosAguardando}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Reembolsos a Processar</CardTitle>
-            <CreditCard className="w-4 h-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{formatCurrency(stats.reembolsosProcessar)}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Adiantamentos em Aberto</CardTitle>
-            <Wallet className="w-4 h-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.adiantamentosAberto}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Gasto Mensal (vs. Ant)</CardTitle>
-            <TrendingDown className="w-4 h-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">-4.2%</div>
-            <p className="text-xs text-muted-foreground mt-1">Redução de gastos</p>
-          </CardContent>
-        </Card>
+        <StatCardWithTrend
+          label="Relatórios p/ Aprovar"
+          icon={FileText}
+          value={stats.relatoriosAguardando}
+          isLoading={isLoading}
+          trend="down"
+          trendValue="15%"
+          trendText="vs ontem"
+        />
+        <StatCardWithTrend
+          label="Reembolsos a Processar"
+          icon={CreditCard}
+          value={stats.reembolsosProcessar}
+          isLoading={isLoading}
+          valueFormatter={formatCurrency}
+          trend="up"
+          trendValue="5%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Adiantamentos em Aberto"
+          icon={Wallet}
+          value={stats.adiantamentosAberto}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="12%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Gasto Mensal (vs. Ant)"
+          icon={TrendingDown}
+          value="-4.2%"
+          isLoading={isLoading}
+          trend="down"
+          trendValue="4.2%"
+          trendText="Redução"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

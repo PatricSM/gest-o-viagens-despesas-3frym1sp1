@@ -9,6 +9,7 @@ import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCardWithTrend } from '@/components/common/StatCardWithTrend'
 
 export function ManagerDashboard() {
   const { user } = useAuth()
@@ -83,67 +84,51 @@ export function ManagerDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm border-orange-100 dark:border-orange-900/50 bg-surface-container-lowest">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Aprovações Pendentes</CardTitle>
-            <CheckSquare className="w-4 h-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.aprovacoesPendentes}</div>
-            )}
-            <Button
-              asChild
-              variant="link"
-              className="px-0 mt-2 h-auto text-xs text-muted-foreground"
-            >
-              <Link to="/aprovacoes">
-                Ir para aprovações <ArrowRight className="w-3 h-3 ml-1" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Gastos da Equipe (Mês)</CardTitle>
-            <Users className="w-4 h-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{formatCurrency(stats.gastosEquipe)}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Maior Despesa Ativa</CardTitle>
-            <TrendingUp className="w-4 h-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{formatCurrency(stats.topDespesa || 3500)}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Tempo Médio Aprovação</CardTitle>
-            <Clock className="w-4 h-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.tempoMedio}</div>
-            )}
-          </CardContent>
-        </Card>
+        <StatCardWithTrend
+          label="Aprovações Pendentes"
+          icon={CheckSquare}
+          value={stats.aprovacoesPendentes}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="3"
+          trendText="novas hoje"
+          className="border-orange-100 dark:border-orange-900/50"
+        >
+          <Button asChild variant="link" className="px-0 mt-2 h-auto text-xs text-muted-foreground">
+            <Link to="/aprovacoes">
+              Ir para aprovações <ArrowRight className="w-3 h-3 ml-1" />
+            </Link>
+          </Button>
+        </StatCardWithTrend>
+        <StatCardWithTrend
+          label="Gastos da Equipe (Mês)"
+          icon={Users}
+          value={stats.gastosEquipe}
+          isLoading={isLoading}
+          valueFormatter={formatCurrency}
+          trend="up"
+          trendValue="8%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Maior Despesa Ativa"
+          icon={TrendingUp}
+          value={stats.topDespesa || 3500}
+          isLoading={isLoading}
+          valueFormatter={formatCurrency}
+          trend="flat"
+          trendValue=""
+          trendText="mesma categoria"
+        />
+        <StatCardWithTrend
+          label="Tempo Médio Aprovação"
+          icon={Clock}
+          value={stats.tempoMedio}
+          isLoading={isLoading}
+          trend="down"
+          trendValue="12%"
+          trendText="mais rápido"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

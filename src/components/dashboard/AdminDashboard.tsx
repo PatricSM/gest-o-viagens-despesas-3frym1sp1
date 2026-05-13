@@ -6,6 +6,7 @@ import { Users, Settings, Workflow, FileLock2, AlertCircle, CheckCircle2 } from 
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCardWithTrend } from '@/components/common/StatCardWithTrend'
 
 export function AdminDashboard() {
   const { user } = useAuth()
@@ -80,56 +81,43 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
-            <Users className="w-4 h-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {stats.usuariosAtivos} / {stats.usuariosTotal}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Gasto Mensal Total</CardTitle>
-            <Settings className="w-4 h-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 158K</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Workflows Ativos</CardTitle>
-            <Workflow className="w-4 h-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.workflows}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Política Vigente</CardTitle>
-            <FileLock2 className="w-4 h-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">v{stats.politicaVersao}.0</div>
-            )}
-          </CardContent>
-        </Card>
+        <StatCardWithTrend
+          label="Usuários Ativos"
+          icon={Users}
+          value={`${stats.usuariosAtivos} / ${stats.usuariosTotal}`}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="2"
+          trendText="novos esta semana"
+        />
+        <StatCardWithTrend
+          label="Gasto Mensal Total"
+          icon={Settings}
+          value={158000}
+          valueFormatter={(val) => `R$ ${Number(val) / 1000}K`}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="5%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Workflows Ativos"
+          icon={Workflow}
+          value={stats.workflows}
+          isLoading={isLoading}
+          trend="flat"
+          trendValue="0%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Política Vigente"
+          icon={FileLock2}
+          value={`v${stats.politicaVersao}.0`}
+          isLoading={isLoading}
+          trend="flat"
+          trendValue=""
+          trendText="Última versão"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

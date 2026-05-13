@@ -1,5 +1,5 @@
 import { Clock, AlertTriangle, CheckCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatCardWithTrend } from '@/components/common/StatCardWithTrend'
 
 interface ApprovalStatsProps {
   pendentesHoje: number
@@ -16,45 +16,39 @@ export function ApprovalStats({
 }: ApprovalStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pendentes Hoje</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{pendentesHoje}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Em Atraso ({'>'}SLA)</CardTitle>
-          <AlertTriangle className="h-4 w-4 text-destructive" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-destructive">{emAtrasoCount}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Aprovadas no Mês</CardTitle>
-          <CheckCircle className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{aprovadasMes}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Tempo Médio</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{tempoMedioDias.toFixed(1)} dias</div>
-        </CardContent>
-      </Card>
+      <StatCardWithTrend
+        label="Pendentes Hoje"
+        icon={Clock}
+        value={pendentesHoje}
+        trend="down"
+        trendValue="5%"
+        trendText="vs ontem"
+      />
+      <StatCardWithTrend
+        label="Em Atraso (>SLA)"
+        icon={AlertTriangle}
+        value={emAtrasoCount}
+        trend={emAtrasoCount > 5 ? 'up' : 'down'}
+        trendValue={emAtrasoCount > 5 ? '+2' : '-1'}
+        trendText="vs ontem"
+      />
+      <StatCardWithTrend
+        label="Aprovadas no Mês"
+        icon={CheckCircle}
+        value={aprovadasMes}
+        trend="up"
+        trendValue="12%"
+        trendText="vs mês anterior"
+      />
+      <StatCardWithTrend
+        label="Tempo Médio"
+        icon={Clock}
+        value={tempoMedioDias}
+        valueFormatter={(v) => `${Number(v).toFixed(1)} dias`}
+        trend="down"
+        trendValue="8%"
+        trendText="mais rápido"
+      />
     </div>
   )
 }

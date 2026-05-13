@@ -16,6 +16,7 @@ import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCardWithTrend } from '@/components/common/StatCardWithTrend'
 
 export function TravelerDashboard() {
   const { user } = useAuth()
@@ -128,73 +129,53 @@ export function TravelerDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Viagens Ativas</CardTitle>
-            <Plane className="w-4 h-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.viagensAndamento}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Próximas Viagens</CardTitle>
-            <Clock className="w-4 h-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.viagensProximas}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Despesas Pendentes</CardTitle>
-            <Receipt className="w-4 h-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.despesasPendentes}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-surface-container-lowest border-outline-variant">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Relatórios em Aprovação</CardTitle>
-            <FileText className="w-4 h-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">{stats.relatoriosAprovacao}</div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="bg-primary/5 border-primary/20 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-primary">Saldo Adiantamentos</CardTitle>
-            <Wallet className="w-4 h-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold text-primary">
-                {formatCurrency(stats.saldoAdiantamentos)}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <StatCardWithTrend
+          label="Viagens Ativas"
+          icon={Plane}
+          value={stats.viagensAndamento}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="12%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Próximas Viagens"
+          icon={Clock}
+          value={stats.viagensProximas}
+          isLoading={isLoading}
+          trend="flat"
+          trendValue="0%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Despesas Pendentes"
+          icon={Receipt}
+          value={stats.despesasPendentes}
+          isLoading={isLoading}
+          trend="down"
+          trendValue="5%"
+          trendText="vs mês anterior"
+        />
+        <StatCardWithTrend
+          label="Relatórios em Aprovação"
+          icon={FileText}
+          value={stats.relatoriosAprovacao}
+          isLoading={isLoading}
+          trend="up"
+          trendValue="2"
+          trendText="novos hoje"
+        />
+        <StatCardWithTrend
+          label="Saldo Adiantamentos"
+          icon={Wallet}
+          value={stats.saldoAdiantamentos}
+          isLoading={isLoading}
+          valueFormatter={formatCurrency}
+          className="bg-primary/5 border-primary/20"
+          trend="flat"
+          trendValue="Estável"
+          trendText="este mês"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
