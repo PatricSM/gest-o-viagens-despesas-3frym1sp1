@@ -80,50 +80,70 @@ migrate(
 
     // ─── CATEGORIAS EXTRAS ───
     const categorias = [
-      { nome: 'Transporte', icone: 'directions_car', cor: '#3B82F6', desc: 'Táxi, Uber, transporte público' },
+      {
+        nome: 'Transporte',
+        icone: 'directions_car',
+        cor: '#3B82F6',
+        desc: 'Táxi, Uber, transporte público',
+      },
       { nome: 'Hospedagem', icone: 'hotel', cor: '#10B981', desc: 'Hotéis, pousadas, AirBnB' },
-      { nome: 'Combustível', icone: 'local_gas_station', cor: '#EF4444', desc: 'Abastecimento de veículos próprios/corporativos' },
-      { nome: 'Material Escritório', icone: 'inventory_2', cor: '#8B5CF6', desc: 'Suprimentos diversos' },
-      { nome: 'Treinamento', icone: 'school', cor: '#F59E0B', desc: 'Cursos, certificações e workshops' },
+      {
+        nome: 'Combustível',
+        icone: 'local_gas_station',
+        cor: '#EF4444',
+        desc: 'Abastecimento de veículos próprios/corporativos',
+      },
+      {
+        nome: 'Material Escritório',
+        icone: 'inventory_2',
+        cor: '#8B5CF6',
+        desc: 'Suprimentos diversos',
+      },
+      {
+        nome: 'Treinamento',
+        icone: 'school',
+        cor: '#F59E0B',
+        desc: 'Cursos, certificações e workshops',
+      },
     ]
     for (const c of categorias) {
-      upsert(
-        'categorias_despesa',
-        `empresa_id='${empresa.id}' && nome='${c.nome}'`,
-        (r) => {
-          r.set('empresa_id', empresa.id)
-          r.set('nome', c.nome)
-          r.set('descricao', c.desc)
-          r.set('icone', c.icone)
-          r.set('cor', c.cor)
-          r.set('reembolsavel_padrao', true)
-          r.set('exige_justificativa', false)
-          r.set('active', true)
-        },
-      )
+      upsert('categorias_despesa', `empresa_id='${empresa.id}' && nome='${c.nome}'`, (r) => {
+        r.set('empresa_id', empresa.id)
+        r.set('nome', c.nome)
+        r.set('descricao', c.desc)
+        r.set('icone', c.icone)
+        r.set('cor', c.cor)
+        r.set('reembolsavel_padrao', true)
+        r.set('exige_justificativa', false)
+        r.set('active', true)
+      })
     }
 
     // ─── FORNECEDORES EXTRAS ───
     const fornecedores = [
       { nome: 'Hotel Plaza SP', cnpj: '22.333.444/0001-55', email: 'reservas@hotelplazasp.com.br' },
-      { nome: 'Uber do Brasil Tecnologia', cnpj: '17.895.646/0001-87', email: 'corporativo@uber.com' },
-      { nome: 'Posto Shell Av. Paulista', cnpj: '33.444.555/0001-66', email: 'contato@shellpaulista.com.br' },
+      {
+        nome: 'Uber do Brasil Tecnologia',
+        cnpj: '17.895.646/0001-87',
+        email: 'corporativo@uber.com',
+      },
+      {
+        nome: 'Posto Shell Av. Paulista',
+        cnpj: '33.444.555/0001-66',
+        email: 'contato@shellpaulista.com.br',
+      },
       { nome: 'Kalunga Papelaria', cnpj: '44.555.666/0001-77', email: 'vendas@kalunga.com.br' },
       { nome: 'Alura Cursos Online', cnpj: '55.666.777/0001-88', email: 'pj@alura.com.br' },
     ]
     for (const f of fornecedores) {
-      upsert(
-        'fornecedores',
-        `empresa_id='${empresa.id}' && nome='${f.nome}'`,
-        (r) => {
-          r.set('empresa_id', empresa.id)
-          r.set('nome', f.nome)
-          r.set('cnpj', f.cnpj)
-          r.set('contato_email', f.email)
-          r.set('preferencial', false)
-          r.set('active', true)
-        },
-      )
+      upsert('fornecedores', `empresa_id='${empresa.id}' && nome='${f.nome}'`, (r) => {
+        r.set('empresa_id', empresa.id)
+        r.set('nome', f.nome)
+        r.set('cnpj', f.cnpj)
+        r.set('contato_email', f.email)
+        r.set('preferencial', false)
+        r.set('active', true)
+      })
     }
 
     // ─── CENTROS DE CUSTO EXTRAS ───
@@ -133,18 +153,14 @@ migrate(
       { codigo: 'RH-001', nome: 'Recursos Humanos', orcamento: 25000 },
     ]
     for (const cc of ccs) {
-      upsert(
-        'centros_custo',
-        `empresa_id='${empresa.id}' && codigo='${cc.codigo}'`,
-        (r) => {
-          r.set('empresa_id', empresa.id)
-          r.set('codigo', cc.codigo)
-          r.set('nome', cc.nome)
-          r.set('orcamento_mensal', cc.orcamento)
-          if (gestor) r.set('responsavel_id', gestor.id)
-          r.set('active', true)
-        },
-      )
+      upsert('centros_custo', `empresa_id='${empresa.id}' && codigo='${cc.codigo}'`, (r) => {
+        r.set('empresa_id', empresa.id)
+        r.set('codigo', cc.codigo)
+        r.set('nome', cc.nome)
+        r.set('orcamento_mensal', cc.orcamento)
+        if (gestor) r.set('responsavel_id', gestor.id)
+        r.set('active', true)
+      })
     }
 
     // ─── PROJETOS EXTRAS ───
@@ -187,21 +203,17 @@ migrate(
       },
     ]
     for (const p of projetos) {
-      upsert(
-        'projetos',
-        `empresa_id='${empresa.id}' && codigo='${p.codigo}'`,
-        (r) => {
-          r.set('empresa_id', empresa.id)
-          r.set('codigo', p.codigo)
-          r.set('nome', p.nome)
-          r.set('data_inicio', today)
-          r.set('orcamento_total', p.orcamento)
-          if (p.ccId) r.set('centro_custo_padrao_id', p.ccId)
-          if (financeiro) r.set('responsavel_id', financeiro.id)
-          r.set('status', p.status)
-          r.set('active', p.status === 'ativo')
-        },
-      )
+      upsert('projetos', `empresa_id='${empresa.id}' && codigo='${p.codigo}'`, (r) => {
+        r.set('empresa_id', empresa.id)
+        r.set('codigo', p.codigo)
+        r.set('nome', p.nome)
+        r.set('data_inicio', today)
+        r.set('orcamento_total', p.orcamento)
+        if (p.ccId) r.set('centro_custo_padrao_id', p.ccId)
+        if (financeiro) r.set('responsavel_id', financeiro.id)
+        r.set('status', p.status)
+        r.set('active', p.status === 'ativo')
+      })
     }
 
     console.log('=== 0023 SEED MORE CADASTROS DONE ===')
@@ -241,10 +253,7 @@ migrate(
       'categorias_despesa',
       `empresa_id='${empresa.id}' && (nome='Transporte' || nome='Hospedagem' || nome='Combustível' || nome='Material Escritório' || nome='Treinamento')`,
     )
-    safeDelete(
-      'cotacao_historico',
-      `empresa_id='${empresa.id}'`,
-    )
+    safeDelete('cotacao_historico', `empresa_id='${empresa.id}'`)
     safeDelete(
       'moedas',
       `empresa_id='${empresa.id}' && (codigo='USD' || codigo='EUR' || codigo='ARS')`,

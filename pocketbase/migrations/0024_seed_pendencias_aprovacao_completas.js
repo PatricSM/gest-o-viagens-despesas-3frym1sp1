@@ -66,16 +66,16 @@ migrate(
 
     const brl = findOne('moedas', `empresa_id='${empresa.id}' && codigo='BRL'`)
     const cc = findOne('centros_custo', `empresa_id='${empresa.id}' && codigo='OP-001'`)
-    const catAlim = findOne('categorias_despesa', `empresa_id='${empresa.id}' && nome='Alimentação'`)
+    const catAlim = findOne(
+      'categorias_despesa',
+      `empresa_id='${empresa.id}' && nome='Alimentação'`,
+    )
     if (!brl || !cc) {
       console.log('Cadastros mínimos faltando (BRL/CC) — rode 0018 antes.')
       return
     }
 
-    const wfViagem = findOne(
-      'workflows',
-      `empresa_id='${empresa.id}' && tipo='viagem' && versao=1`,
-    )
+    const wfViagem = findOne('workflows', `empresa_id='${empresa.id}' && tipo='viagem' && versao=1`)
     const wfDespesa = findOne(
       'workflows',
       `empresa_id='${empresa.id}' && tipo='despesa' && versao=1`,
@@ -98,7 +98,14 @@ migrate(
       findOne('workflow_etapas', `workflow_id='${wfId}' && ordem=${ordem}`)
 
     // Helper para criar run + step pendente
-    const createPendingRun = (workflow, etapa1, targetCollection, targetId, submittedBy, aprovador) => {
+    const createPendingRun = (
+      workflow,
+      etapa1,
+      targetCollection,
+      targetId,
+      submittedBy,
+      aprovador,
+    ) => {
       let run = findOne(
         'workflow_runs',
         `workflow_id='${workflow.id}' && target_collection='${targetCollection}' && target_id='${targetId}'`,
@@ -185,7 +192,14 @@ migrate(
     )
     const etapaA = findEtapa(wfAdiantamento.id, 1)
     if (etapaA) {
-      const runA = createPendingRun(wfAdiantamento, etapaA, 'adiantamentos', adiPend.id, viajante, gestor)
+      const runA = createPendingRun(
+        wfAdiantamento,
+        etapaA,
+        'adiantamentos',
+        adiPend.id,
+        viajante,
+        gestor,
+      )
       if (adiPend.getString('workflow_run_id') !== runA.id) {
         adiPend.set('workflow_run_id', runA.id)
         app.save(adiPend)
@@ -253,7 +267,14 @@ migrate(
     }
     const etapaP = findEtapa(wfPrestacao.id, 1)
     if (etapaP) {
-      const runP = createPendingRun(wfPrestacao, etapaP, 'prestacoes_contas', prestPend.id, viajante, gestor)
+      const runP = createPendingRun(
+        wfPrestacao,
+        etapaP,
+        'prestacoes_contas',
+        prestPend.id,
+        viajante,
+        gestor,
+      )
       if (prestPend.getString('workflow_run_id') !== runP.id) {
         prestPend.set('workflow_run_id', runP.id)
         app.save(prestPend)
@@ -264,10 +285,7 @@ migrate(
     // Reaproveita a Prestação A do seed 0018 que já está em
     // em_aprovacao_financeiro. Precisamos garantir que ela tem
     // workflow_run + step pendente apontando para FINANCEIRO.
-    const prestA = findOne(
-      'prestacoes_contas',
-      `empresa_id='${empresa.id}' && codigo='PC-DEMO-A'`,
-    )
+    const prestA = findOne('prestacoes_contas', `empresa_id='${empresa.id}' && codigo='PC-DEMO-A'`)
     if (prestA && etapaP) {
       let runA = findOne(
         'workflow_runs',
@@ -326,20 +344,16 @@ migrate(
     const d1 = findOne('despesas', `empresa_id='${empresa.id}' && descricao='Almoço Cliente 1'`)
     const d2 = findOne('despesas', `empresa_id='${empresa.id}' && descricao='Jantar Equipe'`)
     if (d1 && d2) {
-      upsert(
-        'duplicidade_alertas',
-        `despesa_a_id='${d1.id}' && despesa_b_id='${d2.id}'`,
-        (r) => {
-          r.set('empresa_id', empresa.id)
-          r.set('despesa_a_id', d1.id)
-          r.set('despesa_b_id', d2.id)
-          r.set(
-            'motivo',
-            'Despesas próximas no tempo, mesmo viajante e categoria — revisar se não há lançamento duplicado.',
-          )
-          r.set('status', 'aberto')
-        },
-      )
+      upsert('duplicidade_alertas', `despesa_a_id='${d1.id}' && despesa_b_id='${d2.id}'`, (r) => {
+        r.set('empresa_id', empresa.id)
+        r.set('despesa_a_id', d1.id)
+        r.set('despesa_b_id', d2.id)
+        r.set(
+          'motivo',
+          'Despesas próximas no tempo, mesmo viajante e categoria — revisar se não há lançamento duplicado.',
+        )
+        r.set('status', 'aberto')
+      })
     }
 
     // ─── BLOCO 6: AUDIT_LOG HISTÓRICO (10 entries) ───
@@ -351,8 +365,20 @@ migrate(
       { user: viajante, action: 'create', module: 'viagens', daysAgoN: 10, recordRef: viagemPrest },
       { user: viajante, action: 'submit', module: 'viagens', daysAgoN: 9, recordRef: viagemPrest },
       { user: gestor, action: 'approve', module: 'viagens', daysAgoN: 8, recordRef: viagemPrest },
-      { user: viajante, action: 'create', module: 'prestacoes_contas', daysAgoN: 2, recordRef: prestPend },
-      { user: viajante, action: 'submit', module: 'prestacoes_contas', daysAgoN: 2, recordRef: prestPend },
+      {
+        user: viajante,
+        action: 'create',
+        module: 'prestacoes_contas',
+        daysAgoN: 2,
+        recordRef: prestPend,
+      },
+      {
+        user: viajante,
+        action: 'submit',
+        module: 'prestacoes_contas',
+        daysAgoN: 2,
+        recordRef: prestPend,
+      },
       { user: admin, action: 'export', module: 'relatorios', daysAgoN: 1 },
     ]
     for (let i = 0; i < auditEntries.length; i++) {
@@ -416,7 +442,8 @@ migrate(
         user_id: viajante.id,
         tipo: 'reembolso_processado',
         titulo: 'Reembolso disponível',
-        mensagem: 'Reembolso de R$ 350,00 da Prestação Recife aprovado — financeiro irá processar o pagamento.',
+        mensagem:
+          'Reembolso de R$ 350,00 da Prestação Recife aprovado — financeiro irá processar o pagamento.',
         link_url: '/prestacoes',
       },
     ]
@@ -458,9 +485,15 @@ migrate(
     }
 
     // Ordem inversa de criação
-    safeDelete('notificacoes', `empresa_id='${empresa.id}' && (titulo='Nova viagem aguardando aprovação' || titulo='Adiantamento aguardando aprovação' || titulo='Prestação aguardando aprovação' || titulo='Prestação aguardando aprovação financeira' || titulo='Sua viagem foi aprovada' || titulo='Reembolso disponível')`)
+    safeDelete(
+      'notificacoes',
+      `empresa_id='${empresa.id}' && (titulo='Nova viagem aguardando aprovação' || titulo='Adiantamento aguardando aprovação' || titulo='Prestação aguardando aprovação' || titulo='Prestação aguardando aprovação financeira' || titulo='Sua viagem foi aprovada' || titulo='Reembolso disponível')`,
+    )
     safeDelete('audit_log', `empresa_id='${empresa.id}' && user_agent='SeedAgent/0024'`)
-    safeDelete('duplicidade_alertas', `empresa_id='${empresa.id}' && motivo ~ 'lançamento duplicado'`)
+    safeDelete(
+      'duplicidade_alertas',
+      `empresa_id='${empresa.id}' && motivo ~ 'lançamento duplicado'`,
+    )
 
     // Apaga workflow_runs e steps relacionados (cascade dos steps via FK)
     try {
@@ -503,18 +536,12 @@ migrate(
       }
     } catch (_) {}
 
-    safeDelete(
-      'despesas',
-      `empresa_id='${empresa.id}' && descricao='Hospedagem Curitiba'`,
-    )
+    safeDelete('despesas', `empresa_id='${empresa.id}' && descricao='Hospedagem Curitiba'`)
     safeDelete(
       'prestacoes_contas',
       `empresa_id='${empresa.id}' && titulo='PC Viagem Curitiba (Pendente Gestor)'`,
     )
-    safeDelete(
-      'adiantamentos',
-      `empresa_id='${empresa.id}' && codigo='AD-DEMO-PEND'`,
-    )
+    safeDelete('adiantamentos', `empresa_id='${empresa.id}' && codigo='AD-DEMO-PEND'`)
     safeDelete(
       'viagem_trechos',
       `viagem_id IN (SELECT id FROM viagens WHERE empresa_id='${empresa.id}' AND (codigo='V-DEMO-PEND' OR codigo='V-DEMO-PREST'))`,
