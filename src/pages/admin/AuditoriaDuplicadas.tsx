@@ -208,26 +208,30 @@ export default function AuditoriaDuplicadas() {
 
                         <div className="grid grid-cols-2 gap-y-4 text-sm mb-4">
                           <div>
-                            <p className="text-muted-foreground text-xs">Viajante</p>
-                            <p className="font-medium truncate">
+                            <p className="text-label-caps text-on-surface-variant">Viajante</p>
+                            <p className="text-body-sm font-medium truncate">
                               {dA.expand?.usuario_id?.name || dA.expand?.usuario_id?.email}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Fornecedor</p>
-                            <p className="font-medium truncate">
+                            <p className="text-label-caps text-on-surface-variant">Fornecedor</p>
+                            <p className="text-body-sm font-medium truncate">
                               {dA.expand?.fornecedor_id?.nome || 'N/A'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Data da Despesa</p>
-                            <p className="font-medium">
+                            <p className="text-label-caps text-on-surface-variant">
+                              Data da Despesa
+                            </p>
+                            <p className="text-data-tabular text-on-surface-variant whitespace-nowrap">
                               {format(new Date(dA.data_despesa), 'dd/MM/yyyy')}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Valor</p>
-                            <p className="font-bold text-lg">{formatCurrency(dA.valor)}</p>
+                            <p className="text-label-caps text-on-surface-variant">Valor</p>
+                            <p className="text-data-tabular tabular-nums font-bold text-lg">
+                              {formatCurrency(dA.valor)}
+                            </p>
                           </div>
                         </div>
 
@@ -280,26 +284,28 @@ export default function AuditoriaDuplicadas() {
 
                         <div className="grid grid-cols-2 gap-y-4 text-sm mb-4">
                           <div>
-                            <p className="text-muted-foreground text-xs">Viajante</p>
-                            <p className="font-medium truncate">
+                            <p className="text-label-caps text-on-surface-variant">Viajante</p>
+                            <p className="text-body-sm font-medium truncate">
                               {dB.expand?.usuario_id?.name || dB.expand?.usuario_id?.email}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Categoria</p>
-                            <p className="font-medium truncate">
+                            <p className="text-label-caps text-on-surface-variant">Categoria</p>
+                            <p className="text-body-sm font-medium truncate">
                               {dA.expand?.categoria_id?.nome || 'N/A'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Data da Despesa</p>
-                            <p className="font-medium">
+                            <p className="text-label-caps text-on-surface-variant">
+                              Data da Despesa
+                            </p>
+                            <p className="text-data-tabular text-on-surface-variant whitespace-nowrap">
                               {format(new Date(dB.data_despesa), 'dd/MM/yyyy')}
                             </p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground text-xs">Valor</p>
-                            <p className="font-bold text-lg text-destructive">
+                            <p className="text-label-caps text-on-surface-variant">Valor</p>
+                            <p className="text-data-tabular tabular-nums font-bold text-lg text-destructive">
                               {formatCurrency(dB.valor)}
                             </p>
                           </div>

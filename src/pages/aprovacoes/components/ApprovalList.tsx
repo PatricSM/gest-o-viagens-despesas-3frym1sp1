@@ -128,32 +128,40 @@ export function ApprovalList({
     <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[50px]">
+          <TableRow className="hover:bg-surface-container transition-colors">
+            <TableHead className="w-[50px] text-label-caps text-on-surface-variant h-10">
               <Checkbox
                 checked={selectedIds.size === items.length && items.length > 0}
                 onCheckedChange={toggleSelectAll}
               />
             </TableHead>
-            <TableHead>Código</TableHead>
-            <TableHead>Solicitante</TableHead>
-            <TableHead>Data</TableHead>
-            <TableHead className="text-right">Valor</TableHead>
-            <TableHead>Alertas</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10">Código</TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10">
+              Solicitante
+            </TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+              Data
+            </TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+              Valor
+            </TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10">Alertas</TableHead>
+            <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+              Ações
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item.id}>
+            <TableRow key={item.id} className="hover:bg-surface-container transition-colors">
               <TableCell>
                 <Checkbox
                   checked={selectedIds.has(item.id)}
                   onCheckedChange={(c) => toggleSelect(item.id, !!c)}
                 />
               </TableCell>
-              <TableCell className="font-medium">{item.codigo}</TableCell>
-              <TableCell>
+              <TableCell className="text-body-sm font-medium">{item.codigo}</TableCell>
+              <TableCell className="text-body-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={item.requesterAvatar} />
@@ -161,16 +169,18 @@ export function ApprovalList({
                       {item.requesterName.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm">{item.requesterName}</span>
+                  <span>{item.requesterName}</span>
                 </div>
               </TableCell>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="text-sm">{format(new Date(item.date), 'dd/MM/yyyy')}</span>
-                  {isEmAtraso(item) && <span className="text-xs text-destructive">Em atraso</span>}
+              <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
+                <div className="flex flex-col items-end">
+                  <span>{format(new Date(item.date), 'dd/MM/yyyy')}</span>
+                  {isEmAtraso(item) && (
+                    <span className="text-xs text-destructive font-sans">Em atraso</span>
+                  )}
                 </div>
               </TableCell>
-              <TableCell className="text-right font-semibold">
+              <TableCell className="text-data-tabular tabular-nums text-right font-semibold">
                 {formatCurrency(item.value, moedas[item.currencyId || ''] || 'BRL')}
               </TableCell>
               <TableCell>
@@ -214,7 +224,7 @@ export function ApprovalList({
             </TableRow>
           ))}
           {items.length === 0 && (
-            <TableRow>
+            <TableRow className="hover:bg-surface-container transition-colors">
               <TableCell colSpan={7} className="p-0">
                 <EmptyState
                   variant="success"

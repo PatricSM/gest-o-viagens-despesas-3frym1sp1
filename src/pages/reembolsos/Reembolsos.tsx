@@ -324,9 +324,9 @@ export default function Reembolsos() {
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   {!isReadOnly && (
-                    <TableHead className="w-[50px] text-center">
+                    <TableHead className="w-[50px] text-center text-label-caps text-on-surface-variant h-10">
                       <Checkbox
                         checked={
                           filteredReembolsos.length > 0 &&
@@ -336,19 +336,37 @@ export default function Reembolsos() {
                       />
                     </TableHead>
                   )}
-                  <TableHead>Código</TableHead>
-                  <TableHead>Colaborador</TableHead>
-                  <TableHead>Prestação</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Aprovação</TableHead>
-                  <TableHead>Pagamento</TableHead>
-                  {!isReadOnly && <TableHead className="text-right">Ações</TableHead>}
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Código
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Colaborador
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Prestação
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Valor
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Aprovação
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Pagamento
+                  </TableHead>
+                  {!isReadOnly && (
+                    <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                      Ações
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow>
+                  <TableRow className="hover:bg-surface-container transition-colors">
                     <TableCell
                       colSpan={isReadOnly ? 7 : 8}
                       className="text-center py-8 text-muted-foreground"
@@ -357,7 +375,7 @@ export default function Reembolsos() {
                     </TableCell>
                   </TableRow>
                 ) : filteredReembolsos.length === 0 ? (
-                  <TableRow>
+                  <TableRow className="hover:bg-surface-container transition-colors">
                     <TableCell colSpan={isReadOnly ? 7 : 8} className="p-0">
                       {statusFilter !== 'all' || searchFilter !== '' ? (
                         <EmptyState
@@ -385,7 +403,7 @@ export default function Reembolsos() {
                   </TableRow>
                 ) : (
                   filteredReembolsos.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow key={r.id} className="hover:bg-surface-container transition-colors">
                       {!isReadOnly && (
                         <TableCell className="text-center">
                           <Checkbox
@@ -394,8 +412,8 @@ export default function Reembolsos() {
                           />
                         </TableCell>
                       )}
-                      <TableCell className="font-medium">{r.codigo || '-'}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-body-sm font-medium">{r.codigo || '-'}</TableCell>
+                      <TableCell className="text-body-sm">
                         <div
                           className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 -ml-1 rounded-md transition-colors w-fit"
                           onClick={() =>
@@ -417,12 +435,12 @@ export default function Reembolsos() {
                               {r.expand?.usuario_id?.name?.substring(0, 2).toUpperCase() || 'US'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm font-medium">
+                          <span className="font-medium">
                             {r.expand?.usuario_id?.name || 'Desconhecido'}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-body-sm">
                         {r.expand?.prestacao_id?.codigo ? (
                           <Badge variant="outline" className="font-mono text-xs">
                             {r.expand.prestacao_id.codigo}
@@ -431,7 +449,7 @@ export default function Reembolsos() {
                           '-'
                         )}
                       </TableCell>
-                      <TableCell className="font-semibold text-primary">
+                      <TableCell className="text-data-tabular tabular-nums text-right font-semibold text-primary">
                         {new Intl.NumberFormat('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',
@@ -453,10 +471,10 @@ export default function Reembolsos() {
                           <Badge variant="destructive">Cancelado</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                         {r.data_aprovacao ? format(new Date(r.data_aprovacao), 'dd/MM/yyyy') : '-'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                         {r.data_pagamento ? format(new Date(r.data_pagamento), 'dd/MM/yyyy') : '-'}
                       </TableCell>
                       {!isReadOnly && (

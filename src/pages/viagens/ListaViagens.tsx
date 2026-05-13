@@ -191,19 +191,31 @@ export default function ListaViagens() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Viajante</TableHead>
-                <TableHead>Destino</TableHead>
-                <TableHead>Estimativa</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+              <TableRow className="hover:bg-surface-container transition-colors">
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Código
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Viajante
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Destino
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Estimativa
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Status
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Ações
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
+                  <TableRow key={i} className="hover:bg-surface-container transition-colors">
                     <TableCell>
                       <Skeleton className="h-5 w-24" />
                     </TableCell>
@@ -225,7 +237,7 @@ export default function ListaViagens() {
                   </TableRow>
                 ))
               ) : filteredViagens.length === 0 ? (
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   <TableCell colSpan={6} className="p-0">
                     {searchTerm ? (
                       <EmptyState
@@ -248,17 +260,20 @@ export default function ListaViagens() {
                 </TableRow>
               ) : (
                 filteredViagens.map((v) => (
-                  <TableRow key={v.id} className="group hover:bg-muted/30">
-                    <TableCell className="font-medium">
-                      {v.codigo || <span className="text-muted-foreground text-xs">Rascunho</span>}
+                  <TableRow
+                    key={v.id}
+                    className="group hover:bg-surface-container transition-colors"
+                  >
+                    <TableCell className="text-body-sm font-medium">
+                      {v.codigo || <span className="text-muted-foreground">Rascunho</span>}
                       <div
-                        className="text-xs text-muted-foreground truncate max-w-[200px] mt-1"
+                        className="text-muted-foreground truncate max-w-[200px] mt-1"
                         title={v.motivo}
                       >
                         {v.motivo}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-body-sm">
                       <div className="flex items-center gap-2">
                         <Avatar className="w-6 h-6">
                           <AvatarImage
@@ -272,11 +287,11 @@ export default function ListaViagens() {
                             {v.expand?.usuario_id?.name?.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{v.expand?.usuario_id?.name || 'Usuário'}</span>
+                        <span>{v.expand?.usuario_id?.name || 'Usuário'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{destinos[v.id] || '-'}</TableCell>
-                    <TableCell className="text-sm font-medium">
+                    <TableCell className="text-body-sm">{destinos[v.id] || '-'}</TableCell>
+                    <TableCell className="text-data-tabular tabular-nums text-right font-medium">
                       <MoneyDisplay value={v.total_estimado || 0} />
                     </TableCell>
                     <TableCell>

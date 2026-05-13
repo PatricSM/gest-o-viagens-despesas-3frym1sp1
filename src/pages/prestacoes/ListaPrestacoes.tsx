@@ -258,20 +258,34 @@ export default function ListaPrestacoes() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Título</TableHead>
-                <TableHead>Viajante</TableHead>
-                <TableHead>Total Despesas</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data Envio</TableHead>
-                <TableHead className="w-[100px] text-right">Ações</TableHead>
+              <TableRow className="hover:bg-surface-container transition-colors">
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Código
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Título
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Viajante
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Total Despesas
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Status
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Data Envio
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 w-[100px] text-right">
+                  Ações
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
+                  <TableRow key={i} className="hover:bg-surface-container transition-colors">
                     {Array.from({ length: 7 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
@@ -280,7 +294,7 @@ export default function ListaPrestacoes() {
                   </TableRow>
                 ))
               ) : filteredData.length === 0 ? (
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   <TableCell colSpan={7} className="p-0">
                     {activeFiltersCount > 0 || search ? (
                       <EmptyState
@@ -306,22 +320,22 @@ export default function ListaPrestacoes() {
                 </TableRow>
               ) : (
                 filteredData.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.codigo || '-'}</TableCell>
-                    <TableCell>
+                  <TableRow key={p.id} className="hover:bg-surface-container transition-colors">
+                    <TableCell className="text-body-sm font-medium">{p.codigo || '-'}</TableCell>
+                    <TableCell className="text-body-sm">
                       <div>
                         <div className="font-medium">{p.titulo}</div>
                         {p.expand?.viagem_id && (
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-muted-foreground mt-1">
                             Viagem: {p.expand.viagem_id.codigo}
                           </div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-body-sm">
                       {p.expand?.usuario_id?.name || p.expand?.usuario_id?.email || '-'}
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="text-data-tabular tabular-nums text-right font-medium">
                       {p.total_despesas?.toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: p.expand?.moeda_id?.codigo || 'BRL',
@@ -336,7 +350,7 @@ export default function ListaPrestacoes() {
                         {statusOptions.find((o) => o.value === p.status)?.label || p.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                       {p.data_envio ? format(new Date(p.data_envio), 'dd/MM/yyyy') : '-'}
                     </TableCell>
                     <TableCell className="text-right">

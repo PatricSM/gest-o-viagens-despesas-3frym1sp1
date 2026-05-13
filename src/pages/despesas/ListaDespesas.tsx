@@ -107,21 +107,35 @@ export default function ListaDespesas() {
 
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Viagem</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead className="text-center">Indicadores</TableHead>
-                <TableHead className="text-right">Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+              <TableRow className="hover:bg-surface-container transition-colors">
+                <TableHead className="text-label-caps text-on-surface-variant h-10">Data</TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Descrição
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Categoria
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Viagem
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Valor
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-center">
+                  Indicadores
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Status
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Ações
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
+                  <TableRow key={i} className="hover:bg-surface-container transition-colors">
                     {Array.from({ length: 8 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
@@ -130,7 +144,7 @@ export default function ListaDespesas() {
                   </TableRow>
                 ))
               ) : filteredDespesas.length === 0 ? (
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   <TableCell colSpan={8} className="p-0">
                     {searchTerm ? (
                       <EmptyState
@@ -163,17 +177,17 @@ export default function ListaDespesas() {
                   const isDuplicidade = exp.possivel_duplicidade
 
                   return (
-                    <TableRow key={exp.id}>
-                      <TableCell className="text-sm whitespace-nowrap">
+                    <TableRow key={exp.id} className="hover:bg-surface-container transition-colors">
+                      <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap">
                         <DateDisplay date={exp.data_despesa} />
                       </TableCell>
                       <TableCell
-                        className="font-medium max-w-[200px] truncate"
+                        className="text-body-sm font-medium max-w-[200px] truncate"
                         title={exp.descricao}
                       >
                         {exp.descricao || 'Despesa'}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-body-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           {exp.expand?.categoria_id?.cor && (
                             <div
@@ -184,10 +198,10 @@ export default function ListaDespesas() {
                           {exp.expand?.categoria_id?.nome || 'Outros'}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-body-sm text-muted-foreground">
                         {exp.expand?.viagem_id?.codigo || '-'}
                       </TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="text-data-tabular tabular-nums text-right font-medium">
                         <MoneyDisplay value={exp.valor} moeda={exp.expand?.moeda_id?.codigo} />
                       </TableCell>
                       <TableCell>

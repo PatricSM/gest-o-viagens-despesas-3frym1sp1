@@ -291,59 +291,67 @@ export default function Auditoria() {
         <div className="overflow-auto flex-1">
           <Table data-tabular>
             <TableHeader className="bg-muted/50 sticky top-0 z-10">
-              <TableRow>
-                <TableHead className="w-[180px]">Data / Hora</TableHead>
-                <TableHead>Usuário</TableHead>
-                <TableHead>Ação</TableHead>
-                <TableHead>Módulo</TableHead>
-                <TableHead>ID Registro</TableHead>
-                <TableHead className="text-right">Detalhes</TableHead>
+              <TableRow className="hover:bg-surface-container transition-colors">
+                <TableHead className="text-label-caps text-on-surface-variant h-10 w-[180px]">
+                  Data / Hora
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Usuário
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">Ação</TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  Módulo
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10">
+                  ID Registro
+                </TableHead>
+                <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                  Detalhes
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
                     Carregando logs...
                   </TableCell>
                 </TableRow>
               ) : logs.length === 0 ? (
-                <TableRow>
+                <TableRow className="hover:bg-surface-container transition-colors">
                   <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
                     Nenhum registro encontrado para os filtros atuais.
                   </TableCell>
                 </TableRow>
               ) : (
                 logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
+                  <TableRow key={log.id} className="hover:bg-surface-container transition-colors">
+                    <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap">
                       {format(new Date(log.created), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-body-sm">
                       {log.expand?.user_id ? (
                         <div className="flex flex-col">
-                          <span className="font-medium text-sm">
+                          <span className="font-medium">
                             {log.expand.user_id.name || 'Sem nome'}
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            {log.expand.user_id.email}
-                          </span>
+                          <span className="text-muted-foreground">{log.expand.user_id.email}</span>
                         </div>
                       ) : (
-                        <span className="italic text-muted-foreground text-sm">Sistema</span>
+                        <span className="italic text-muted-foreground">Sistema</span>
                       )}
                     </TableCell>
                     <TableCell>{getActionBadge(log.action)}</TableCell>
-                    <TableCell className="capitalize text-sm font-medium">
+                    <TableCell className="text-body-sm capitalize font-medium">
                       {log.module.replace('_', ' ')}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-data-tabular tabular-nums">
                       <div className="flex flex-col">
-                        <span className="font-mono text-xs truncate max-w-[120px]">
-                          {log.record_id || '-'}
-                        </span>
+                        <span className="truncate max-w-[120px]">{log.record_id || '-'}</span>
                         {log.ip && (
-                          <span className="text-[10px] text-muted-foreground">IP: {log.ip}</span>
+                          <span className="text-[10px] text-muted-foreground font-sans">
+                            IP: {log.ip}
+                          </span>
                         )}
                       </div>
                     </TableCell>

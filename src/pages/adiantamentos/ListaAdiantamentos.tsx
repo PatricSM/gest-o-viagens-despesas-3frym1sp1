@@ -88,19 +88,33 @@ export default function ListaAdiantamentos() {
             </div>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Código</TableHead>
-                  <TableHead>Viajante</TableHead>
-                  <TableHead>Viagem</TableHead>
-                  <TableHead>Data Solicitação</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                <TableRow className="hover:bg-surface-container transition-colors">
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Código
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Viajante
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10">
+                    Viagem
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Data Solicitação
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Valor
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-label-caps text-on-surface-variant h-10 text-right">
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredItems.length === 0 && (
-                  <TableRow>
+                  <TableRow className="hover:bg-surface-container transition-colors">
                     <TableCell colSpan={7} className="p-0">
                       {searchTerm ? (
                         <EmptyState
@@ -126,18 +140,18 @@ export default function ListaAdiantamentos() {
                   </TableRow>
                 )}
                 {filteredItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.codigo || '-'}</TableCell>
-                    <TableCell className="font-medium text-sm">
+                  <TableRow key={item.id} className="hover:bg-surface-container transition-colors">
+                    <TableCell className="text-body-sm font-medium">{item.codigo || '-'}</TableCell>
+                    <TableCell className="text-body-sm font-medium">
                       {item.expand?.usuario_id?.name || 'Usuário'}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-body-sm text-muted-foreground">
                       {item.expand?.viagem_id?.codigo || '-'}
                     </TableCell>
-                    <TableCell className="text-sm whitespace-nowrap">
+                    <TableCell className="text-data-tabular text-on-surface-variant whitespace-nowrap text-right">
                       {formatDate(item.created)}
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-data-tabular tabular-nums text-right font-medium">
                       {formatCurrency(item.valor)}
                     </TableCell>
                     <TableCell className="text-right">
