@@ -21,6 +21,7 @@ import {
   getPrestacoesPendentesFinanceiroCount,
   updateReembolsoStatus,
 } from '@/services/reembolsos'
+import { exportRemessaPDF } from '@/lib/pdf-export'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -53,7 +54,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Label } from '@/components/ui/label'
 
 export default function Reembolsos() {
-  const { userRole } = useAuth()
+  const { userRole, currentEmpresa } = useAuth()
   const { toast } = useToast()
 
   const [reembolsos, setReembolsos] = useState<any[]>([])
@@ -178,65 +179,21 @@ export default function Reembolsos() {
     const toExport = reembolsos.filter((r) => selectedIds.includes(r.id))
     if (toExport.length === 0) return
 
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) return
-
-    const html = `
-      <html>
-        <head>
-          <title>Remessa de Pagamentos</title>
-          <style>
-            body { font-family: sans-serif; padding: 20px; color: #333; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-            th { background-color: #f4f4f4; font-weight: bold; }
-            h1 { font-size: 24px; margin-bottom: 5px; }
-            .header { margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Remessa de Pagamentos</h1>
-            <p><strong>Data de Emissão:</strong> ${format(new Date(), 'dd/MM/yyyy HH:mm')}</p>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Colaborador</th>
-                <th>Dados Bancários</th>
-                <th>Chave PIX</th>
-                <th>Prestação</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${toExport
-                .map(
-                  (r) => `
-                <tr>
-                  <td>${r.codigo || '-'}</td>
-                  <td>${r.expand?.usuario_id?.name || '-'}</td>
-                  <td>
-                    ${r.banco_destino ? `Banco: ${r.banco_destino}<br/>Ag: ${r.agencia_destino || '-'} / CC: ${r.conta_destino || '-'}` : '-'}
-                  </td>
-                  <td>${r.chave_pix || '-'}</td>
-                  <td>${r.expand?.prestacao_id?.codigo || '-'}</td>
-                  <td><strong>R$ ${r.valor?.toFixed(2)}</strong></td>
-                </tr>
-              `,
-                )
-                .join('')}
-            </tbody>
-          </table>
-          <script>
-            window.onload = () => { window.print(); };
-          </script>
-        </body>
-      </html>
-    `
-    printWindow.document.write(html)
-    printWindow.document.close()
+    exportRemessaPDF({
+      empresa_nome: currentEmpresa?.nome_fantasia || currentEmpresa?.razao_social || 'Empresa',
+      data_geracao: format(new Date(), 'dd/MM/yyyy HH:mm'),
+      reembolsos: toExport.map((r) => ({
+        codigo: r.codigo || '-',
+        colaborador: r.expand?.usuario_id?.name || '-',
+        cpf: r.expand?.usuario_id?.cpf || '-',
+        banco_destino: r.banco_destino || '-',
+        agencia_destino: r.agencia_destino || '-',
+        conta_destino: r.conta_destino || '-',
+        chave_pix: r.chave_pix || '-',
+        valor: r.valor || 0,
+        prestacao_codigo: r.expand?.prestacao_id?.codigo || '-',
+      })),
+    })
   }
 
   const [paymentDate, setPaymentDate] = useState(format(new Date(), 'yyyy-MM-dd'))

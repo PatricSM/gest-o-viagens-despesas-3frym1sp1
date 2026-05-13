@@ -27,6 +27,7 @@ import { getWorkflowRunSteps, triggerWorkflow } from '@/services/workflows'
 import { getDespesaComprovantes } from '@/services/prestacoes'
 import pb from '@/lib/pocketbase/client'
 import { cn } from '@/lib/utils'
+import { exportPrestacaoPDF } from '@/lib/pdf-export'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -143,8 +144,48 @@ export default function DetalhePrestacao() {
     }
   }
 
-  const printDocument = () => {
-    window.print()
+  const handleExportPDF = () => {
+    if (!prestacao || !currentEmpresa) return
+
+    let minDate = new Date()
+    let maxDate = new Date(0)
+    if (despesas.length > 0) {
+      despesas.forEach((d) => {
+        const dDate = new Date(d.data_despesa)
+        if (dDate < minDate) minDate = dDate
+        if (dDate > maxDate) maxDate = dDate
+      })
+    }
+
+    const periodoInicio = despesas.length > 0 ? format(minDate, 'dd/MM/yyyy') : '-'
+    const periodoFim = despesas.length > 0 ? format(maxDate, 'dd/MM/yyyy') : '-'
+
+    exportPrestacaoPDF({
+      codigo: prestacao.codigo || '-',
+      titulo: prestacao.titulo || 'Prestação',
+      viajante_nome:
+        prestacao.expand?.usuario_id?.name || prestacao.expand?.usuario_id?.email || '-',
+      empresa_nome: currentEmpresa.nome_fantasia || currentEmpresa.razao_social || '-',
+      viagem_codigo: prestacao.expand?.viagem_id?.codigo,
+      periodo: { inicio: periodoInicio, fim: periodoFim },
+      despesas: despesas.map((d) => ({
+        data: format(new Date(d.data_despesa), 'dd/MM/yyyy'),
+        categoria: d.expand?.categoria_id?.nome || '-',
+        fornecedor: d.expand?.fornecedor_id?.nome || '-',
+        descricao: d.descricao || '-',
+        valor: d.valor_convertido || d.valor || 0,
+      })),
+      total_despesas: prestacao.total_despesas || 0,
+      total_adiantamento: prestacao.total_adiantamento || 0,
+      saldo: prestacao.saldo || 0,
+      moeda_simbolo: currency,
+      timeline: workflowSteps.map((step) => ({
+        etapa: step.expand?.etapa_id?.tipo_aprovador?.replace('_', ' ') || '-',
+        aprovador: step.expand?.aprovador_id?.name || '-',
+        data: step.decided_at ? format(new Date(step.decided_at), 'dd/MM/yyyy HH:mm') : 'Pendente',
+        comentario: step.comentario || '-',
+      })),
+    })
   }
 
   if (!prestacao) return null
@@ -175,7 +216,7 @@ export default function DetalhePrestacao() {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={printDocument}>
+          <Button variant="outline" onClick={handleExportPDF}>
             <Printer className="w-4 h-4 mr-2" /> Exportar PDF
           </Button>
 
