@@ -4,7 +4,7 @@ migrate(
     try {
       empresa = app.findFirstRecordByData('empresas', 'cnpj', '00.000.000/0001-00')
     } catch (_) {
-      throw new Error("Empresa Adapta Corp não encontrada. Rode 0004 primeiro.")
+      throw new Error('Empresa Adapta Corp não encontrada. Rode 0004 primeiro.')
     }
 
     let admin = null
