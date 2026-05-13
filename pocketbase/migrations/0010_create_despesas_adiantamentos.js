@@ -1,3 +1,11 @@
+/**
+ * DOCUMENTATION NOTE:
+ * The 'prestacoes' collection created in this migration is obsolete.
+ * It was created as a stub and later replaced by the correct 'prestacoes_contas'
+ * collection in migration 0011.
+ *
+ * The obsolete 'prestacoes' collection is safely removed in migration 0016.
+ */
 migrate(
   (app) => {
     const empresas = app.findCollectionByNameOrId('empresas')
