@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const statusOptions = [
   { value: 'rascunho', label: 'Rascunho' },
@@ -51,19 +52,25 @@ export default function ListaPrestacoes() {
   const [viagemFilter, setViagemFilter] = useState<string>('all')
   const [dataInicio, setDataInicio] = useState<string>('')
   const [dataFim, setDataFim] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = async () => {
     if (!currentEmpresa) return
-    const filters: any = {}
-    if (statusFilter !== 'all') filters.status = [statusFilter]
-    if (usuarioFilter !== 'all') filters.usuario_id = usuarioFilter
-    else if (userRole === 'viajante') filters.usuario_id = user?.id
-    if (viagemFilter !== 'all') filters.viagem_id = viagemFilter
-    if (dataInicio) filters.dataInicio = dataInicio
-    if (dataFim) filters.dataFim = dataFim
+    setIsLoading(true)
+    try {
+      const filters: any = {}
+      if (statusFilter !== 'all') filters.status = [statusFilter]
+      if (usuarioFilter !== 'all') filters.usuario_id = usuarioFilter
+      else if (userRole === 'viajante') filters.usuario_id = user?.id
+      if (viagemFilter !== 'all') filters.viagem_id = viagemFilter
+      if (dataInicio) filters.dataInicio = dataInicio
+      if (dataFim) filters.dataFim = dataFim
 
-    const data = await getPrestacoes(currentEmpresa.id, filters)
-    setPrestacoes(data)
+      const data = await getPrestacoes(currentEmpresa.id, filters)
+      setPrestacoes(data)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -260,7 +267,17 @@ export default function ListaPrestacoes() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : filteredData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
                     <FileText className="h-10 w-10 mx-auto text-muted mb-2" />

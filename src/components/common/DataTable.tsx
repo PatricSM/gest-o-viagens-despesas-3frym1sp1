@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { Inbox } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -52,14 +53,15 @@ export function DataTable<T = any>({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="text-center py-12 text-muted-foreground"
-                >
-                  Carregando...
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={`skeleton-${idx}`}>
+                  {columns.map((col, j) => (
+                    <TableCell key={j} className={col.className}>
+                      <Skeleton className="h-5 w-full max-w-[200px]" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center p-0 h-64">

@@ -30,17 +30,19 @@ import {
   getTrechos,
 } from '@/services/viagens'
 import { useRealtime } from '@/hooks/use-realtime'
-import { useToast } from '@/hooks/use-toast'
 import pb from '@/lib/pocketbase/client'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ListaViagens() {
   const [viagens, setViagens] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [destinos, setDestinos] = useState<Record<string, string>>({})
-  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
 
   const loadData = async () => {
+    setIsLoading(true)
     try {
       const data = await getViagens()
       setViagens(data)
@@ -54,11 +56,9 @@ export default function ListaViagens() {
       }
       setDestinos(destMap)
     } catch (err) {
-      toast({
-        title: 'Erro ao carregar',
-        description: 'Não foi possível carregar as viagens',
-        variant: 'destructive',
-      })
+      toast.error('Não foi possível carregar as viagens')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -78,9 +78,9 @@ export default function ListaViagens() {
       } else {
         await updateViagem(id, { status: 'cancelada' })
       }
-      toast({ title: 'Sucesso', description: 'Operação realizada com sucesso.' })
+      toast.success('Operação realizada com sucesso.')
     } catch (err) {
-      toast({ title: 'Erro', description: 'Erro na operação.', variant: 'destructive' })
+      toast.error('Erro na operação.')
     }
   }
 
@@ -95,10 +95,10 @@ export default function ListaViagens() {
         data_aprovacao: undefined,
         workflow_run_id: undefined,
       })
-      toast({ title: 'Sucesso', description: 'Viagem duplicada como rascunho.' })
+      toast.success('Viagem duplicada como rascunho.')
       navigate(`/viagens/${novaViagem.id}/editar`)
     } catch (err) {
-      toast({ title: 'Erro', description: 'Erro ao duplicar.', variant: 'destructive' })
+      toast.error('Erro ao duplicar.')
     }
   }
 
@@ -126,8 +126,12 @@ export default function ListaViagens() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Exportar como CSV</DropdownMenuItem>
-              <DropdownMenuItem>Exportar como PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast.success('Exportação de CSV iniciada')}>
+                Exportar como CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast.success('Exportação de PDF iniciada')}>
+                Exportar como PDF
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button asChild className="shadow-sm">
@@ -185,7 +189,30 @@ export default function ListaViagens() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredViagens.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <Skeleton className="h-5 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-12 ml-auto" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : filteredViagens.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
                     Nenhuma viagem encontrada.

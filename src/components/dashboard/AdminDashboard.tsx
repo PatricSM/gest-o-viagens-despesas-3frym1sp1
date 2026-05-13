@@ -5,6 +5,7 @@ import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { Users, Settings, Workflow, FileLock2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function AdminDashboard() {
   const { user } = useAuth()
@@ -19,9 +20,11 @@ export function AdminDashboard() {
     politicaOk: true,
     smtpOk: false,
   })
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = async () => {
     try {
+      setIsLoading(true)
       const [uAtivos, uTotal, wf, pol, emp] = await Promise.all([
         pb.collection('users').getList(1, 1, { filter: `active = true` }),
         pb.collection('users').getList(1, 1),
@@ -46,6 +49,8 @@ export function AdminDashboard() {
       })
     } catch (e) {
       console.error(e)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -81,9 +86,13 @@ export function AdminDashboard() {
             <Users className="w-4 h-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.usuariosAtivos} / {stats.usuariosTotal}
-            </div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {stats.usuariosAtivos} / {stats.usuariosTotal}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -101,7 +110,11 @@ export function AdminDashboard() {
             <Workflow className="w-4 h-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.workflows}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.workflows}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -110,7 +123,11 @@ export function AdminDashboard() {
             <FileLock2 className="w-4 h-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">v{stats.politicaVersao}.0</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">v{stats.politicaVersao}.0</div>
+            )}
           </CardContent>
         </Card>
       </div>

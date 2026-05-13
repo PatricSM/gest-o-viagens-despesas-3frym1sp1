@@ -33,7 +33,6 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
 
   const [categorias, setCategorias] = useState<any[]>([])
   const [moedas, setMoedas] = useState<any[]>([])
@@ -82,19 +81,12 @@ export function ExpenseFormDialog({ children, onSuccess }: ExpenseFormDialogProp
         file || undefined,
       )
 
-      toast({
-        title: 'Despesa Registrada',
-        description: 'A despesa foi registrada com sucesso.',
-      })
+      toast.success('Despesa registrada com sucesso.')
       setOpen(false)
       if (onSuccess) onSuccess()
     } catch (err: any) {
       const fieldErrs = extractFieldErrors(err)
-      toast({
-        title: 'Erro',
-        description: Object.values(fieldErrs)[0] || 'Falha ao registrar despesa',
-        variant: 'destructive',
-      })
+      toast.error(Object.values(fieldErrs)[0] || 'Falha ao registrar despesa')
     } finally {
       setLoading(false)
     }

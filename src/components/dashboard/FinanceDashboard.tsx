@@ -6,6 +6,7 @@ import { FileText, CreditCard, Wallet, TrendingDown, AlertCircle, ShieldAlert } 
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function FinanceDashboard() {
   const { user } = useAuth()
@@ -16,9 +17,11 @@ export function FinanceDashboard() {
     despesasDuplicadas: 0,
     foraPolitica: 5,
   })
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = async () => {
     try {
+      setIsLoading(true)
       const [rel, reemb, adiant, dup] = await Promise.all([
         pb
           .collection('prestacoes_contas')
@@ -41,6 +44,8 @@ export function FinanceDashboard() {
       })
     } catch (e) {
       console.error(e)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -81,7 +86,11 @@ export function FinanceDashboard() {
             <FileText className="w-4 h-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.relatoriosAguardando}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.relatoriosAguardando}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -90,7 +99,11 @@ export function FinanceDashboard() {
             <CreditCard className="w-4 h-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.reembolsosProcessar)}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <div className="text-2xl font-bold">{formatCurrency(stats.reembolsosProcessar)}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -99,7 +112,11 @@ export function FinanceDashboard() {
             <Wallet className="w-4 h-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.adiantamentosAberto}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.adiantamentosAberto}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">

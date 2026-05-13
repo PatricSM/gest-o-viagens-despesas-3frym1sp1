@@ -15,6 +15,7 @@ import {
 import pb from '@/lib/pocketbase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function TravelerDashboard() {
   const { user } = useAuth()
@@ -25,10 +26,12 @@ export function TravelerDashboard() {
     relatoriosAprovacao: 0,
     saldoAdiantamentos: 0,
   })
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = async () => {
     if (!user) return
     try {
+      setIsLoading(true)
       const [vAnd, vProx, dPend, rAprov, adiant] = await Promise.all([
         pb
           .collection('viagens')
@@ -61,6 +64,8 @@ export function TravelerDashboard() {
       })
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -129,7 +134,11 @@ export function TravelerDashboard() {
             <Plane className="w-4 h-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.viagensAndamento}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.viagensAndamento}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -138,7 +147,11 @@ export function TravelerDashboard() {
             <Clock className="w-4 h-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.viagensProximas}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.viagensProximas}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -147,7 +160,11 @@ export function TravelerDashboard() {
             <Receipt className="w-4 h-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.despesasPendentes}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.despesasPendentes}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
@@ -156,7 +173,11 @@ export function TravelerDashboard() {
             <FileText className="w-4 h-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.relatoriosAprovacao}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats.relatoriosAprovacao}</div>
+            )}
           </CardContent>
         </Card>
         <Card className="bg-primary/5 border-primary/20 shadow-sm">
@@ -165,9 +186,13 @@ export function TravelerDashboard() {
             <Wallet className="w-4 h-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {formatCurrency(stats.saldoAdiantamentos)}
-            </div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <div className="text-2xl font-bold text-primary">
+                {formatCurrency(stats.saldoAdiantamentos)}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

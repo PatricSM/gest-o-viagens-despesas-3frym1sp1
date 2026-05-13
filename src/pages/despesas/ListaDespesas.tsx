@@ -21,19 +21,24 @@ import { getDespesas, deleteDespesa } from '@/services/despesas'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ListaDespesas() {
   const [despesas, setDespesas] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { currentEmpresa } = useAuth()
   const navigate = useNavigate()
 
   const loadData = async () => {
     if (!currentEmpresa) return
     try {
+      setIsLoading(true)
       const data = await getDespesas(currentEmpresa.id)
       setDespesas(data)
     } catch {
       toast.error('Erro ao carregar despesas.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -98,7 +103,17 @@ export default function ListaDespesas() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {despesas.length === 0 && (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : despesas.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center p-0">
                     <EmptyState
@@ -108,94 +123,98 @@ export default function ListaDespesas() {
                     />
                   </TableCell>
                 </TableRow>
-              )}
-              {despesas.map((exp) => {
-                const isForaPolitica =
-                  exp.politica_violacoes && Object.keys(exp.politica_violacoes).length > 0
-                const comprovantes = exp.expand?.despesa_comprovantes_via_despesa_id || []
-                const isSemComprovante = comprovantes.length === 0
-                const isDuplicidade = exp.possivel_duplicidade
+              ) : (
+                despesas.map((exp) => {
+                  const isForaPolitica =
+                    exp.politica_violacoes && Object.keys(exp.politica_violacoes).length > 0
+                  const comprovantes = exp.expand?.despesa_comprovantes_via_despesa_id || []
+                  const isSemComprovante = comprovantes.length === 0
+                  const isDuplicidade = exp.possivel_duplicidade
 
-                return (
-                  <TableRow key={exp.id}>
-                    <TableCell className="text-sm whitespace-nowrap">
-                      <DateDisplay date={exp.data_despesa} />
-                    </TableCell>
-                    <TableCell className="font-medium max-w-[200px] truncate" title={exp.descricao}>
-                      {exp.descricao || 'Despesa'}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        {exp.expand?.categoria_id?.cor && (
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: exp.expand.categoria_id.cor }}
-                          />
-                        )}
-                        {exp.expand?.categoria_id?.nome || 'Outros'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {exp.expand?.viagem_id?.codigo || '-'}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      <MoneyDisplay value={exp.valor} moeda={exp.expand?.moeda_id?.codigo} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        {isForaPolitica && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <AlertTriangle className="w-4 h-4 text-amber-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>Fora de política</TooltipContent>
-                          </Tooltip>
-                        )}
-                        {isSemComprovante && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Receipt className="w-4 h-4 text-slate-400" />
-                            </TooltipTrigger>
-                            <TooltipContent>Sem comprovante</TooltipContent>
-                          </Tooltip>
-                        )}
-                        {isDuplicidade && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Copy className="w-4 h-4 text-orange-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>Possível duplicidade</TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right flex justify-end">
-                      <StatusBadge status={exp.status} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate(`/despesas/${exp.id}`)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        {exp.status === 'rascunho' && (
+                  return (
+                    <TableRow key={exp.id}>
+                      <TableCell className="text-sm whitespace-nowrap">
+                        <DateDisplay date={exp.data_despesa} />
+                      </TableCell>
+                      <TableCell
+                        className="font-medium max-w-[200px] truncate"
+                        title={exp.descricao}
+                      >
+                        {exp.descricao || 'Despesa'}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          {exp.expand?.categoria_id?.cor && (
+                            <div
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: exp.expand.categoria_id.cor }}
+                            />
+                          )}
+                          {exp.expand?.categoria_id?.nome || 'Outros'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {exp.expand?.viagem_id?.codigo || '-'}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        <MoneyDisplay value={exp.valor} moeda={exp.expand?.moeda_id?.codigo} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-2">
+                          {isForaPolitica && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>Fora de política</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {isSemComprovante && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Receipt className="w-4 h-4 text-slate-400" />
+                              </TooltipTrigger>
+                              <TooltipContent>Sem comprovante</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {isDuplicidade && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Copy className="w-4 h-4 text-orange-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>Possível duplicidade</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right flex justify-end">
+                        <StatusBadge status={exp.status} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDelete(exp.id)}
+                            onClick={() => navigate(`/despesas/${exp.id}`)}
                           >
-                            <Trash className="w-4 h-4" />
+                            <Eye className="w-4 h-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
+                          {exp.status === 'rascunho' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDelete(exp.id)}
+                            >
+                              <Trash className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
             </TableBody>
           </Table>
         </CardContent>

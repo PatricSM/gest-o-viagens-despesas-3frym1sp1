@@ -54,6 +54,7 @@ import { useRealtime } from '@/hooks/use-realtime'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
+import { useEmpresaSwitcher } from '@/hooks/use-empresa-switcher'
 
 const getNavGroups = (role: string | null) => {
   const groups = [
@@ -156,7 +157,8 @@ const getNavGroups = (role: string | null) => {
 export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, currentEmpresa, userRole, userEmpresas, switchEmpresa, signOut } = useAuth()
+  const { user, userRole, signOut } = useAuth()
+  const { currentEmpresa, userEmpresas, switchEmpresa } = useEmpresaSwitcher()
 
   const [showSwitchCompany, setShowSwitchCompany] = useState(false)
 
@@ -211,9 +213,8 @@ export default function Layout() {
   }
 
   const handleSwitchCompany = (empId: string) => {
-    switchEmpresa(empId)
     setShowSwitchCompany(false)
-    navigate('/dashboard')
+    switchEmpresa(empId)
   }
 
   return (
