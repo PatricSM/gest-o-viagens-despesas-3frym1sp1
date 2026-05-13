@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { MoneyDisplay } from '@/components/common/MoneyDisplay'
 import { DateDisplay } from '@/components/common/DateDisplay'
 import { ReceiptViewer } from '@/components/common/ReceiptViewer'
-import { Timeline } from '@/components/common/Timeline'
+import { ApprovalTimeline } from '@/components/common/ApprovalTimeline'
 import { PolicyViolationAlert } from '@/components/common/PolicyViolationAlert'
 import { getDespesa, deleteDespesa } from '@/services/despesas'
 import { getWorkflowRunSteps } from '@/services/workflows'
@@ -182,24 +182,20 @@ export default function DetalheDespesa() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Timeline
-                  items={steps.map((step, idx) => ({
+                <ApprovalTimeline
+                  submittedBy={
+                    despesa.expand?.usuario_id?.name ||
+                    despesa.expand?.usuario_id?.email ||
+                    'Usuário'
+                  }
+                  submittedAt={despesa.created}
+                  steps={steps.map((step: any) => ({
                     id: step.id,
-                    title:
-                      step.expand?.etapa_id?.tipo_aprovador === 'gestor_direto'
-                        ? 'Gestor Direto'
-                        : 'Aprovador',
-                    description: `${step.expand?.aprovador_id?.name || 'Aguardando atribuição'} ${step.comentario ? `- "${step.comentario}"` : ''}`,
-                    status:
-                      step.status === 'aprovado'
-                        ? 'completed'
-                        : step.status === 'rejeitado'
-                          ? 'error'
-                          : 'upcoming',
-                    icon: <span className="text-xs font-bold">{idx + 1}</span>,
-                    time: step.decided_at
-                      ? new Intl.DateTimeFormat('pt-BR').format(new Date(step.decided_at))
-                      : undefined,
+                    approverName: step.expand?.aprovador_id?.name,
+                    approverRole: step.expand?.etapa_id?.tipo_aprovador,
+                    status: step.status,
+                    decidedAt: step.decided_at,
+                    comentario: step.comentario,
                   }))}
                 />
               </CardContent>

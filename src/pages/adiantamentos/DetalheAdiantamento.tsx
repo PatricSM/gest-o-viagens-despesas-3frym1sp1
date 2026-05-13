@@ -7,21 +7,28 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 import { getAdiantamento, updateAdiantamento } from '@/services/adiantamentos'
+import { getWorkflowRunSteps } from '@/services/workflows'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 import pb from '@/lib/pocketbase/client'
+import { ApprovalTimeline } from '@/components/common/ApprovalTimeline'
 
 export default function DetalheAdiantamento() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { userRole } = useAuth()
   const [item, setItem] = useState<any>(null)
+  const [workflowSteps, setWorkflowSteps] = useState<any[]>([])
 
   const loadData = async () => {
     if (!id) return
     try {
       const data = await getAdiantamento(id)
       setItem(data)
+
+      if (data.workflow_run_id) {
+        getWorkflowRunSteps(data.workflow_run_id).then(setWorkflowSteps)
+      }
     } catch {
       toast.error('Erro ao carregar adiantamento.')
       navigate('/adiantamentos')
@@ -155,6 +162,32 @@ export default function DetalheAdiantamento() {
                 </div>
               </CardContent>
             </Card>
+
+            {workflowSteps.length > 0 && (
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-primary" /> Fluxo de Aprovação
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ApprovalTimeline
+                    submittedBy={
+                      item.expand?.usuario_id?.name || item.expand?.usuario_id?.email || 'Usuário'
+                    }
+                    submittedAt={item.created}
+                    steps={workflowSteps.map((step: any) => ({
+                      id: step.id,
+                      approverName: step.expand?.aprovador_id?.name,
+                      approverRole: step.expand?.etapa_id?.tipo_aprovador,
+                      status: step.status,
+                      decidedAt: step.decided_at,
+                      comentario: step.comentario,
+                    }))}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="md:col-span-1 space-y-6">

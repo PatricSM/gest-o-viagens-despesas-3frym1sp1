@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { MoneyDisplay } from '@/components/common/MoneyDisplay'
 import { DateDisplay } from '@/components/common/DateDisplay'
-import { Timeline, TimelineItem } from '@/components/common/Timeline'
+import { ApprovalTimeline } from '@/components/common/ApprovalTimeline'
 import {
   FileText,
   ArrowLeft,
@@ -230,26 +230,16 @@ export default function DetalheViagem() {
                 Nenhum fluxo de aprovação iniciado.
               </p>
             ) : (
-              <Timeline
-                items={workflowSteps.map((step) => ({
+              <ApprovalTimeline
+                submittedBy={v.expand?.usuario_id?.name || v.expand?.usuario_id?.email || 'Usuário'}
+                submittedAt={v.created}
+                steps={workflowSteps.map((step: any) => ({
                   id: step.id,
-                  title: `Etapa ${step.ordem}`,
-                  description: `Aprovador: ${step.expand?.aprovador_id?.name || 'Não definido'}`,
-                  status:
-                    step.status === 'aprovado'
-                      ? 'completed'
-                      : step.status === 'rejeitado'
-                        ? 'error'
-                        : 'upcoming',
-                  icon:
-                    step.status === 'aprovado' ? (
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    ) : step.status === 'rejeitado' ? (
-                      <Ban className="w-4 h-4 text-white" />
-                    ) : (
-                      <Clock className="w-4 h-4" />
-                    ),
-                  time: step.decided_at ? formatDate(step.decided_at) : undefined,
+                  approverName: step.expand?.aprovador_id?.name,
+                  approverRole: step.expand?.etapa_id?.tipo_aprovador,
+                  status: step.status,
+                  decidedAt: step.decided_at,
+                  comentario: step.comentario,
                 }))}
               />
             )}

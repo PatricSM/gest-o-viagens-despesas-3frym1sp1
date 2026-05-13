@@ -28,6 +28,7 @@ import { getDespesaComprovantes } from '@/services/prestacoes'
 import pb from '@/lib/pocketbase/client'
 import { cn } from '@/lib/utils'
 import { exportPrestacaoPDF } from '@/lib/pdf-export'
+import { ApprovalTimeline } from '@/components/common/ApprovalTimeline'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -544,56 +545,22 @@ export default function DetalhePrestacao() {
                   Nenhum histórico de aprovação disponível.
                 </div>
               ) : (
-                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant before:to-transparent">
-                  {workflowSteps.map((step, idx) => (
-                    <div
-                      key={step.id}
-                      className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
-                    >
-                      <div
-                        className={cn(
-                          'flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-surface-container text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2',
-                          step.status === 'aprovado'
-                            ? 'bg-primary text-primary-foreground'
-                            : step.status === 'rejeitado'
-                              ? 'bg-destructive text-destructive-foreground'
-                              : '',
-                        )}
-                      >
-                        {step.status === 'aprovado' ? (
-                          <CheckCircle className="w-5 h-5" />
-                        ) : step.status === 'rejeitado' ? (
-                          <XCircle className="w-5 h-5" />
-                        ) : (
-                          step.ordem
-                        )}
-                      </div>
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border border-outline-variant bg-surface-container-lowest shadow-sm">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-semibold text-sm capitalize">
-                            {step.expand?.etapa_id?.tipo_aprovador.replace('_', ' ')}
-                          </h4>
-                          <span className="text-xs text-muted-foreground">
-                            {step.decided_at
-                              ? format(new Date(step.decided_at), 'dd/MM/yyyy HH:mm')
-                              : 'Pendente'}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Status: <strong className="uppercase text-xs">{step.status}</strong>
-                        </p>
-                        {step.expand?.aprovador_id && (
-                          <p className="text-xs mt-2">Aprovador: {step.expand.aprovador_id.name}</p>
-                        )}
-                        {step.comentario && (
-                          <p className="text-sm mt-2 p-2 bg-surface-container rounded italic">
-                            "{step.comentario}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <ApprovalTimeline
+                  submittedBy={
+                    prestacao.expand?.usuario_id?.name ||
+                    prestacao.expand?.usuario_id?.email ||
+                    'Usuário'
+                  }
+                  submittedAt={prestacao.data_envio || prestacao.created}
+                  steps={workflowSteps.map((step: any) => ({
+                    id: step.id,
+                    approverName: step.expand?.aprovador_id?.name,
+                    approverRole: step.expand?.etapa_id?.tipo_aprovador,
+                    status: step.status,
+                    decidedAt: step.decided_at,
+                    comentario: step.comentario,
+                  }))}
+                />
               )}
             </CardContent>
           </Card>
